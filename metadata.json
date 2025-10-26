@@ -1,0 +1,5 @@
+{
+  "name": "Mobile Home Park Manager",
+  "description": "An application for managing properties in a mobile home park, including tenants and maintenance requests.",
+  "requestFramePermissions": []
+}
