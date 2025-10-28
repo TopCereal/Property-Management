@@ -11,11 +11,12 @@ const AddApplicantModal: React.FC<AddApplicantModalProps> = ({ onClose, onAddApp
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [notes, setNotes] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name && email && phone) {
-      onAddApplicant({ name, email, phone });
+      onAddApplicant({ name, email, phone, notes });
     }
   };
 
@@ -33,6 +34,10 @@ const AddApplicantModal: React.FC<AddApplicantModalProps> = ({ onClose, onAddApp
         <div>
           <label className="block text-sm font-medium text-gray-700">Phone Number</label>
           <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Notes</label>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
         </div>
         <div className="flex justify-end pt-4">
             <button type="button" onClick={onClose} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancel</button>

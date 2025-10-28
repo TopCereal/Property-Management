@@ -1,12 +1,15 @@
 
 import React, { useState } from 'react';
-import { Property, Transaction } from '../../types';
+import { Property, Transaction, RecurringFrequency } from '../../types';
 import BaseModal from './BaseModal';
 
 interface AddRevenueModalProps {
   properties: Property[];
   onClose: () => void;
-  onAddRevenue: (revenue: Omit<Transaction, 'id' | 'type'>) => void;
+  onAddRevenue: (
+    revenue: Omit<Transaction, 'id' | 'type'>,
+    recurringConfig?: { frequency: RecurringFrequency; endDate: string | null }
+  ) => void;
 }
 
 const REVENUE_CATEGORIES = ['Rent', 'Late Fee', 'Security Deposit', 'Other'];
@@ -18,10 +21,17 @@ const AddRevenueModal: React.FC<AddRevenueModalProps> = ({ properties, onClose, 
   const [amount, setAmount] = useState<number | ''>('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [frequency, setFrequency] = useState<RecurringFrequency>('monthly');
+  const [endDate, setEndDate] = useState('');
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (category && typeof amount === 'number' && date) {
-      onAddRevenue({ propertyId, category, description, amount, date });
+      const revenueData = { propertyId, category, description, amount, date };
+      const recurringConfig = isRecurring ? { frequency, endDate: endDate || null } : undefined;
+      onAddRevenue(revenueData, recurringConfig);
     }
   };
 
@@ -53,6 +63,32 @@ const AddRevenueModal: React.FC<AddRevenueModalProps> = ({ properties, onClose, 
           <label className="block text-sm font-medium text-gray-700">Description</label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></textarea>
         </div>
+        
+        <div className="pt-2">
+            <label className="flex items-center">
+                <input type="checkbox" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} className="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+                <span className="ml-2 text-sm text-gray-700">Make this a recurring revenue</span>
+            </label>
+        </div>
+
+        {isRecurring && (
+        <div className="grid grid-cols-2 gap-4 p-4 border rounded-md bg-gray-50">
+            <div>
+            <label className="block text-sm font-medium text-gray-700">Frequency</label>
+            <select value={frequency} onChange={e => setFrequency(e.target.value as RecurringFrequency)} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+            </div>
+            <div>
+            <label className="block text-sm font-medium text-gray-700">End Date (Optional)</label>
+            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"/>
+            </div>
+        </div>
+        )}
+
         <div className="flex justify-end pt-4">
             <button type="button" onClick={onClose} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
             <button type="submit" className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">Add Revenue</button>

@@ -1,7 +1,6 @@
-
 import React from 'react';
 
-type Page = 'properties' | 'tenants' | 'maintenance' | 'billing';
+type Page = 'properties' | 'tenants' | 'maintenance' | 'billing' | 'map';
 
 interface HeaderProps {
   activePage: Page;
@@ -14,7 +13,8 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onAddPropert
     { id: 'properties', label: 'Properties' },
     { id: 'tenants', label: 'Tenants' },
     { id: 'maintenance', label: 'Maintenance' },
-    { id: 'billing', label: 'Billing' },
+    { id: 'billing', label: 'Financials' },
+    { id: 'map', label: 'Site Map'},
   ];
 
   return (

@@ -14,6 +14,7 @@ interface PropertyCardProps {
   onEditProperty: () => void;
   onAddRequest: () => void;
   onViewRequests: () => void;
+  onViewFiles: () => void;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
@@ -26,6 +27,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   onEditProperty,
   onAddRequest,
   onViewRequests,
+  onViewFiles,
 }) => {
   const activeRequestsCount = requests.filter(r => r.status === 'Active').length;
   const hasMaintenance = activeRequestsCount > 0;
@@ -69,7 +71,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         </div>
 
         <div className="mt-4">
-            <p className="text-2xl font-bold text-center">${property.rent}<span className="text-base font-normal text-gray-500">/mo</span></p>
+            <p className="text-2xl font-bold text-center text-gray-900">${property.rent}<span className="text-base font-normal text-gray-500">/mo</span></p>
         </div>
 
         {isOccupied && tenant && (
@@ -88,12 +90,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               <button onClick={onAddRequest} className="w-full text-sm bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600 transition duration-150">Add Maintenance Request</button>
               {requests.length > 0 && <button onClick={onViewRequests} className="w-full text-sm bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition duration-150">View Requests</button>}
               <button onClick={onEditProperty} className="w-full text-sm bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-150">Edit Property</button>
+              <button onClick={onViewFiles} className="w-full text-sm bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-150">Files</button>
               <button onClick={onRemoveTenant} className="w-full text-sm bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition duration-150">Remove Tenant</button>
             </>
           ) : (
             <>
               <button onClick={onAddTenant} className="w-full text-sm bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-150">Add Tenant</button>
               <button onClick={onEditProperty} className="w-full text-sm bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-150">Edit Property</button>
+              <button onClick={onViewFiles} className="w-full text-sm bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-150">Files</button>
               <button onClick={onDeleteProperty} className="w-full text-sm bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-150 mt-2">Delete Property</button>
             </>
           )}

@@ -12,6 +12,7 @@ interface PropertyListProps {
   onEditProperty: (property: Property) => void;
   onAddRequest: (property: Property) => void;
   onViewRequests: (property: Property) => void;
+  onViewFiles: (property: Property) => void;
 }
 
 const PropertyList: React.FC<PropertyListProps> = ({
@@ -24,6 +25,7 @@ const PropertyList: React.FC<PropertyListProps> = ({
   onEditProperty,
   onAddRequest,
   onViewRequests,
+  onViewFiles,
 }) => {
   if (properties.length === 0) {
     return (
@@ -48,6 +50,7 @@ const PropertyList: React.FC<PropertyListProps> = ({
           onEditProperty={() => onEditProperty(prop)}
           onAddRequest={() => onAddRequest(prop)}
           onViewRequests={() => onViewRequests(prop)}
+          onViewFiles={() => onViewFiles(prop)}
         />
       ))}
     </div>

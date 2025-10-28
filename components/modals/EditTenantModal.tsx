@@ -1,28 +1,28 @@
 import React, { useState } from 'react';
-import { Property, Tenant } from '../../types';
+import { Tenant } from '../../types';
 import BaseModal from './BaseModal';
 
-interface AddTenantModalProps {
-  property: Property;
+interface EditTenantModalProps {
+  tenant: Tenant;
   onClose: () => void;
-  onAddTenant: (tenant: Omit<Tenant, 'id' | 'propertyId' | 'status'>) => void;
+  onEditTenant: (tenant: Tenant) => void;
 }
 
-const AddTenantModal: React.FC<AddTenantModalProps> = ({ property, onClose, onAddTenant }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [notes, setNotes] = useState('');
+const EditTenantModal: React.FC<EditTenantModalProps> = ({ tenant, onClose, onEditTenant }) => {
+  const [name, setName] = useState(tenant.name);
+  const [email, setEmail] = useState(tenant.email);
+  const [phone, setPhone] = useState(tenant.phone);
+  const [notes, setNotes] = useState(tenant.notes || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name && email && phone) {
-      onAddTenant({ name, email, phone, notes });
+      onEditTenant({ ...tenant, name, email, phone, notes });
     }
   };
 
   return (
-    <BaseModal title={`Add Tenant to Lot #${property.lotNumber}`} onClose={onClose}>
+    <BaseModal title={`Edit Tenant: ${tenant.name}`} onClose={onClose}>
       <form onSubmit={handleSubmit} className="p-6 space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Full Name</label>
@@ -42,11 +42,11 @@ const AddTenantModal: React.FC<AddTenantModalProps> = ({ property, onClose, onAd
         </div>
         <div className="flex justify-end pt-4">
             <button type="button" onClick={onClose} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancel</button>
-            <button type="submit" className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Add Tenant</button>
+            <button type="submit" className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save Changes</button>
         </div>
       </form>
     </BaseModal>
   );
 };
 
-export default AddTenantModal;
+export default EditTenantModal;

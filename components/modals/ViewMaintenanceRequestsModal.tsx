@@ -1,7 +1,8 @@
-
 import React from 'react';
 import { Property, MaintenanceRequest } from '../../types';
 import BaseModal from './BaseModal';
+import DownloadIcon from '../icons/DownloadIcon';
+import PaperclipIcon from '../icons/PaperclipIcon';
 
 interface ViewMaintenanceRequestsModalProps {
   property: Property;
@@ -12,6 +13,16 @@ interface ViewMaintenanceRequestsModalProps {
 
 const RequestItem: React.FC<{ request: MaintenanceRequest; onComplete: () => void }> = ({ request, onComplete }) => {
     const statusColor = request.status === 'Active' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
+    
+    const handleDownload = (fileData: string, fileName: string) => {
+        const link = document.createElement('a');
+        link.href = fileData;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="p-4 border rounded-md shadow-sm bg-white">
             <div className="flex justify-between items-start">
@@ -35,11 +46,26 @@ const RequestItem: React.FC<{ request: MaintenanceRequest; onComplete: () => voi
                     <p className="text-sm">Completed on: {new Date(request.completionDetails.completedAt).toLocaleString()}</p>
                     <p className="text-sm">Hours: {request.completionDetails.hours}, Cost: ${request.completionDetails.cost}</p>
                     <p className="text-sm mt-1 italic">"{request.completionDetails.comments}"</p>
+                    {request.completionDetails.attachments && request.completionDetails.attachments.length > 0 && (
+                        <div className="mt-3">
+                            <h5 className="text-sm font-semibold text-gray-800 flex items-center"><PaperclipIcon className="w-4 h-4 mr-1"/>Attachments</h5>
+                            <ul className="mt-1 space-y-1">
+                                {request.completionDetails.attachments.map((file, index) => (
+                                    <li key={index} className="flex items-center justify-between text-sm text-gray-600 bg-white p-1 rounded">
+                                        <span className="truncate">{file.fileName}</span>
+                                        <button onClick={() => handleDownload(file.fileData, file.fileName)} className="ml-2 text-indigo-500 hover:text-indigo-700">
+                                            <DownloadIcon className="w-4 h-4"/>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             )}
             {request.status === 'Active' && (
                 <div className="mt-4 text-right">
-                    <button onClick={onComplete} className="text-sm bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600 transition duration-150">Mark as Complete</button>
+                    <button onClick={onComplete} className="text-sm bg-green-500 text-black py-1 px-3 rounded-md hover:bg-green-600 transition duration-150">Mark as Complete</button>
                 </div>
             )}
         </div>
