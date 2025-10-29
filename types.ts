@@ -7,6 +7,14 @@ export type RecurringFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
 export type TenantFileCategory = 'Application Phase' | 'Lease Phase' | 'Move-out';
 export type PropertyFileCategory = 'Photos' | 'Legal & Financial' | 'Insurance' | 'Maintenance & Improvements' | 'Compliance & Inspections' | 'Other';
 
+export interface LateFeeSettings {
+  isEnabled: boolean;
+  gracePeriodDays: number;
+  feeType: 'fixed' | 'percentage';
+  feeAmount: number;
+  feePercentage: number;
+}
+
 export interface Property {
   id: string;
   lotNumber: string;
@@ -50,6 +58,7 @@ export interface MaintenanceRequest {
     hours: number;
     cost: number;
     comments: string;
+    messageToTenant?: string;
     attachments?: MaintenanceAttachment[];
   } | null;
 }

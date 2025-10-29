@@ -59,13 +59,20 @@ const RequestCard: React.FC<{
                 </div>
             </div>
             {request.status === 'Completed' && request.completionDetails ? (
-                <div className="bg-green-50 px-5 py-4 border-t">
-                     <h4 className="font-semibold text-sm text-green-800">Completion Details</h4>
-                     <p className="text-sm text-gray-800 mt-1">Completed on: {new Date(request.completionDetails.completedAt).toLocaleString()}</p>
-                    <p className="text-sm text-gray-800">Hours: {request.completionDetails.hours} | Cost: ${request.completionDetails.cost.toFixed(2)}</p>
-                    <p className="text-sm mt-2 text-gray-800 bg-white p-2 rounded-md">"{request.completionDetails.comments}"</p>
+                <div className="bg-green-50 px-5 py-4 border-t space-y-3">
+                     <div>
+                        <h4 className="font-semibold text-sm text-green-800">Completion Details</h4>
+                        <p className="text-sm text-gray-800 mt-1">Completed on: {new Date(request.completionDetails.completedAt).toLocaleString()}</p>
+                        <p className="text-sm text-gray-800">Hours: {request.completionDetails.hours} | Cost: ${request.completionDetails.cost.toFixed(2)}</p>
+                     </div>
+                     {request.completionDetails.messageToTenant && (
+                        <div>
+                            <h5 className="font-semibold text-sm text-green-800">Message to Tenant</h5>
+                            <p className="text-sm mt-1 text-gray-800 bg-white p-2 rounded-md">"{request.completionDetails.messageToTenant}"</p>
+                        </div>
+                     )}
                     {request.completionDetails.attachments && request.completionDetails.attachments.length > 0 && (
-                        <div className="mt-3">
+                        <div>
                             <h5 className="text-sm font-semibold text-gray-800 flex items-center"><PaperclipIcon className="w-4 h-4 mr-1"/>Attachments</h5>
                             <ul className="mt-1 space-y-1">
                                 {request.completionDetails.attachments.map((file, index) => (

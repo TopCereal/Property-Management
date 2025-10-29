@@ -6,9 +6,10 @@ interface HeaderProps {
   activePage: Page;
   setActivePage: (page: Page) => void;
   onAddProperty: () => void;
+  onLogout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onAddProperty }) => {
+const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onAddProperty, onLogout }) => {
   const navItems: { id: Page; label: string }[] = [
     { id: 'properties', label: 'Properties' },
     { id: 'tenants', label: 'Tenants' },
@@ -39,12 +40,18 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onAddPropert
               </button>
             ))}
           </nav>
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
             <button
               onClick={onAddProperty}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Add Property
+            </button>
+            <button
+                onClick={onLogout}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50"
+            >
+                Log Out
             </button>
           </div>
         </div>

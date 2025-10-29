@@ -13,6 +13,7 @@ interface BillingPageProps {
   onGenerateIncomeStatement: () => void;
   onEditRecurring: (transaction: RecurringTransaction) => void;
   onDeleteRecurring: (id: string) => void;
+  onOpenLateFeeSettings: () => void;
 }
 
 const BillingPage: React.FC<BillingPageProps> = ({ 
@@ -24,7 +25,8 @@ const BillingPage: React.FC<BillingPageProps> = ({
   onDeleteTransaction, 
   onGenerateIncomeStatement,
   onEditRecurring,
-  onDeleteRecurring
+  onDeleteRecurring,
+  onOpenLateFeeSettings,
 }) => {
   const [showFilters, setShowFilters] = useState(false);
   
@@ -97,6 +99,12 @@ const BillingPage: React.FC<BillingPageProps> = ({
       <div className="flex justify-between items-center mb-6 border-b pb-4">
         <h2 className="text-2xl font-bold text-gray-800">Financials</h2>
         <div className="space-x-2 flex items-center">
+          <button
+            onClick={onOpenLateFeeSettings}
+            className="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50"
+          >
+            Late Fee Settings
+          </button>
           <button
             onClick={onGenerateIncomeStatement}
             className="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50"

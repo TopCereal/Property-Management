@@ -9,13 +9,14 @@ interface ViewMaintenanceRequestDetailsModalProps {
   property: Property | undefined;
   tenant: Tenant | undefined;
   onClose: () => void;
-  onCompleteRequest: (request: MaintenanceRequest) => void;
+  onCompleteRequest?: (request: MaintenanceRequest) => void;
 }
 
 const ViewMaintenanceRequestDetailsModal: React.FC<ViewMaintenanceRequestDetailsModalProps> = ({ request, property, tenant, onClose, onCompleteRequest }) => {
   
   const statusColor = request.status === 'Active' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
-  
+  const isManagerView = !!onCompleteRequest;
+
   const handleDownload = (fileData: string, fileName: string) => {
     const link = document.createElement('a');
     link.href = fileData;
@@ -74,24 +75,38 @@ const ViewMaintenanceRequestDetailsModal: React.FC<ViewMaintenanceRequestDetails
         {request.status === 'Completed' && request.completionDetails && (
           <div>
             <h4 className="font-semibold text-gray-800">Completion Details</h4>
-            <div className="mt-2 p-3 bg-green-50 border-l-4 border-green-400">
+            <div className="mt-2 p-3 bg-green-50 border-l-4 border-green-400 space-y-2">
                 <p className="text-sm text-gray-800"><span className="font-medium">Completed on:</span> {new Date(request.completionDetails.completedAt).toLocaleString()}</p>
-                <p className="text-sm text-gray-800"><span className="font-medium">Hours:</span> {request.completionDetails.hours}</p>
-                <p className="text-sm text-gray-800"><span className="font-medium">Cost:</span> ${request.completionDetails.cost.toFixed(2)}</p>
-                <p className="text-sm text-gray-800 mt-2">"{request.completionDetails.comments}"</p>
-                {request.completionDetails.attachments && request.completionDetails.attachments.length > 0 && (
-                    <div className="mt-3">
-                        <h5 className="text-sm font-semibold text-gray-800 flex items-center"><PaperclipIcon className="w-4 h-4 mr-1"/>Attachments</h5>
-                        <ul className="mt-1 space-y-1">
-                            {request.completionDetails.attachments.map((file, index) => (
-                                <li key={index} className="flex items-center justify-between text-sm text-gray-600 bg-white p-2 rounded-md border">
-                                    <span className="truncate flex-1 mr-2">{file.fileName}</span>
-                                    <button onClick={() => handleDownload(file.fileData, file.fileName)} className="text-indigo-600 hover:text-indigo-800 font-medium">
-                                        <DownloadIcon className="w-5 h-5"/>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
+                
+                {request.completionDetails.messageToTenant && (
+                    <div>
+                        <p className="font-medium text-sm text-gray-800">Message from Management:</p>
+                        <p className="text-sm text-gray-800 mt-1 p-2 bg-white rounded-md">"{request.completionDetails.messageToTenant}"</p>
+                    </div>
+                )}
+
+                {/* Manager-only details */}
+                {isManagerView && (
+                    <div className="pt-2 border-t border-green-200">
+                        <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Internal Details</p>
+                        <p className="text-sm text-gray-800"><span className="font-medium">Hours:</span> {request.completionDetails.hours}</p>
+                        <p className="text-sm text-gray-800"><span className="font-medium">Cost:</span> ${request.completionDetails.cost.toFixed(2)}</p>
+                        <p className="text-sm text-gray-800 mt-2"><span className="font-medium">Internal Comments:</span> "{request.completionDetails.comments}"</p>
+                        {request.completionDetails.attachments && request.completionDetails.attachments.length > 0 && (
+                            <div className="mt-3">
+                                <h5 className="text-sm font-semibold text-gray-800 flex items-center"><PaperclipIcon className="w-4 h-4 mr-1"/>Attachments</h5>
+                                <ul className="mt-1 space-y-1">
+                                    {request.completionDetails.attachments.map((file, index) => (
+                                        <li key={index} className="flex items-center justify-between text-sm text-gray-600 bg-white p-2 rounded-md border">
+                                            <span className="truncate flex-1 mr-2">{file.fileName}</span>
+                                            <button onClick={() => handleDownload(file.fileData, file.fileName)} className="text-indigo-600 hover:text-indigo-800 font-medium">
+                                                <DownloadIcon className="w-5 h-5"/>
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -100,7 +115,7 @@ const ViewMaintenanceRequestDetailsModal: React.FC<ViewMaintenanceRequestDetails
       </div>
 
       <div className="p-4 bg-gray-100 border-t flex justify-end space-x-2">
-        {request.status === 'Active' && (
+        {request.status === 'Active' && onCompleteRequest && (
           <button
             onClick={() => onCompleteRequest(request)}
             className="bg-green-600 text-black py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-700"

@@ -6,7 +6,7 @@ import TrashIcon from '../icons/TrashIcon';
 interface CompleteMaintenanceRequestModalProps {
   request: MaintenanceRequest;
   onClose: () => void;
-  onComplete: (completionDetails: { hours: number; cost: number; comments: string; attachments?: MaintenanceAttachment[] }) => void;
+  onComplete: (completionDetails: { hours: number; cost: number; comments: string; messageToTenant: string; attachments?: MaintenanceAttachment[] }) => void;
 }
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -23,6 +23,7 @@ const CompleteMaintenanceRequestModal: React.FC<CompleteMaintenanceRequestModalP
   const [hours, setHours] = useState<number | ''>('');
   const [cost, setCost] = useState<number | ''>('');
   const [comments, setComments] = useState('');
+  const [messageToTenant, setMessageToTenant] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
@@ -70,7 +71,7 @@ const CompleteMaintenanceRequestModal: React.FC<CompleteMaintenanceRequestModalP
                 };
             })
         );
-        onComplete({ hours, cost, comments, attachments: attachmentData });
+        onComplete({ hours, cost, comments, messageToTenant, attachments: attachmentData });
     } catch (err) {
         setError('Failed to process attachments. Please try again.');
         setIsProcessing(false);
@@ -95,8 +96,14 @@ const CompleteMaintenanceRequestModal: React.FC<CompleteMaintenanceRequestModalP
             </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-black">Completion Comments</label>
-          <textarea value={comments} onChange={(e) => setComments(e.target.value)} required rows={4} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+          <label className="block text-sm font-medium text-black">Internal Completion Comments</label>
+          <textarea value={comments} onChange={(e) => setComments(e.target.value)} required rows={3} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+          <p className="text-xs text-gray-500 mt-1">These notes are for internal records and will not be visible to the tenant.</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-black">Message to Tenant (Optional)</label>
+          <textarea value={messageToTenant} onChange={(e) => setMessageToTenant(e.target.value)} rows={3} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+          <p className="text-xs text-gray-500 mt-1">This message will be visible to the tenant.</p>
         </div>
         <div>
             <label className="block text-sm font-medium text-black">Attach Receipts or Photos</label>
