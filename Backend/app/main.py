@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
 
-# Import routers here
-# from .routers import properties, tenants, leases, maintenance, transactions, files
+# Import routers
+from .routers import properties as properties_router
+from .routers import tenants as tenants_router
 
 app = FastAPI(title="Property Management API")
 
@@ -20,12 +21,8 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 # Include routers here
-# app.include_router(properties.router)
-# app.include_router(tenants.router)
-# app.include_router(leases.router)
-# app.include_router(maintenance.router)
-# app.include_router(transactions.router)
-# app.include_router(files.router)
+app.include_router(properties_router.router)
+app.include_router(tenants_router.router)
 
 @app.get("/")
 async def root():
