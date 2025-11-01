@@ -1,0 +1,118 @@
+"""Initial migration
+
+Revision ID: 1a1a1a1a1a1a
+Revises: 
+Create Date: 2025-11-01 00:00:00.000000
+
+"""
+from alembic import op
+import sqlalchemy as sa
+
+# revision identifiers, used by Alembic.
+revision = '1a1a1a1a1a1a'
+down_revision = None
+branch_labels = None
+depends_on = None
+
+def upgrade():
+    # Create schema if it doesn't exist
+    op.execute('CREATE SCHEMA IF NOT EXISTS pm')
+    
+    # Create properties table
+    op.create_table('properties',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('address', sa.Text(), nullable=False),
+        sa.Column('bedrooms', sa.Integer(), nullable=True),
+        sa.Column('bathrooms', sa.Float(), nullable=True),
+        sa.Column('area', sa.Float(), nullable=True),
+        sa.Column('rent_amount', sa.Numeric(precision=10, scale=2), nullable=True),
+        sa.Column('status', sa.String(length=50), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.PrimaryKeyConstraint('id'),
+        schema='pm'
+    )
+    
+    # Create tenants table
+    op.create_table('tenants',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('first_name', sa.String(length=100), nullable=True),
+        sa.Column('last_name', sa.String(length=100), nullable=True),
+        sa.Column('email', sa.String(length=255), nullable=True),
+        sa.Column('phone', sa.String(length=20), nullable=True),
+        sa.Column('status', sa.String(length=50), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('email'),
+        schema='pm'
+    )
+    
+    # Create leases table
+    op.create_table('leases',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('property_id', sa.Integer(), nullable=True),
+        sa.Column('tenant_id', sa.Integer(), nullable=True),
+        sa.Column('start_date', sa.Date(), nullable=True),
+        sa.Column('end_date', sa.Date(), nullable=True),
+        sa.Column('rent_amount', sa.Numeric(precision=10, scale=2), nullable=True),
+        sa.Column('status', sa.String(length=50), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.ForeignKeyConstraint(['property_id'], ['pm.properties.id'], ),
+        sa.ForeignKeyConstraint(['tenant_id'], ['pm.tenants.id'], ),
+        sa.PrimaryKeyConstraint('id'),
+        schema='pm'
+    )
+    
+    # Create maintenance_requests table
+    op.create_table('maintenance_requests',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('property_id', sa.Integer(), nullable=True),
+        sa.Column('tenant_id', sa.Integer(), nullable=True),
+        sa.Column('description', sa.Text(), nullable=True),
+        sa.Column('status', sa.String(length=50), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(['property_id'], ['pm.properties.id'], ),
+        sa.ForeignKeyConstraint(['tenant_id'], ['pm.tenants.id'], ),
+        sa.PrimaryKeyConstraint('id'),
+        schema='pm'
+    )
+    
+    # Create transactions table
+    op.create_table('transactions',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('property_id', sa.Integer(), nullable=True),
+        sa.Column('tenant_id', sa.Integer(), nullable=True),
+        sa.Column('type', sa.String(length=50), nullable=True),
+        sa.Column('amount', sa.Numeric(precision=10, scale=2), nullable=True),
+        sa.Column('description', sa.Text(), nullable=True),
+        sa.Column('date', sa.Date(), nullable=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.ForeignKeyConstraint(['property_id'], ['pm.properties.id'], ),
+        sa.ForeignKeyConstraint(['tenant_id'], ['pm.tenants.id'], ),
+        sa.PrimaryKeyConstraint('id'),
+        schema='pm'
+    )
+    
+    # Create files table
+    op.create_table('files',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('property_id', sa.Integer(), nullable=True),
+        sa.Column('tenant_id', sa.Integer(), nullable=True),
+        sa.Column('file_name', sa.String(length=255), nullable=True),
+        sa.Column('file_path', sa.Text(), nullable=True),
+        sa.Column('file_type', sa.String(length=50), nullable=True),
+        sa.Column('uploaded_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+        sa.ForeignKeyConstraint(['property_id'], ['pm.properties.id'], ),
+        sa.ForeignKeyConstraint(['tenant_id'], ['pm.tenants.id'], ),
+        sa.PrimaryKeyConstraint('id'),
+        schema='pm'
+    )
+
+def downgrade():
+    op.drop_table('files', schema='pm')
+    op.drop_table('transactions', schema='pm')
+    op.drop_table('maintenance_requests', schema='pm')
+    op.drop_table('leases', schema='pm')
+    op.drop_table('tenants', schema='pm')
+    op.drop_table('properties', schema='pm')
+    # Don't drop the schema as it might be used by other applications
