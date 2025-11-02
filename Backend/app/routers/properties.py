@@ -34,3 +34,46 @@ def get_property(property_id: int, db: Session = Depends(get_db)):
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found")
     return prop
+
+@router.put("/{property_id}", response_model=PropertyRead)
+def update_property(property_id: int, property: PropertyUpdate, db: Session = Depends(get_db)):
+    db_property = db.query(PropertyModel).filter(PropertyModel.id == property_id).first()
+    if db_property is None:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    for field, value in property.dict(exclude_unset=True).items():
+        setattr(db_property, field, value)
+    
+    db.commit()
+    db.refresh(db_property)
+    return db_property
+
+@router.patch("/{property_id}", response_model=PropertyRead)
+def patch_property(property_id: int, property: PropertyPatch, db: Session = Depends(get_db)):
+    db_property = db.query(PropertyModel).filter(PropertyModel.id == property_id).first()
+    if db_property is None:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    for field, value in property.dict(exclude_unset=True).items():
+        if value is not None:  # Only update fields that are provided
+            setattr(db_property, field, value)
+    
+    db.commit()
+    db.refresh(db_property)
+    return db_property
+
+@router.delete("/{property_id}")
+def delete_property(property_id: int, db: Session = Depends(get_db)):
+    db_property = db.query(PropertyModel).filter(PropertyModel.id == property_id).first()
+    if db_property is None:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    db.delete(db_property)
+    db.commit()
+    return {"message": f"Property {property_id} deleted successfully"}
+@router.get("/{property_id}", response_model=PropertyRead)
+def get_property(property_id: int, db: Session = Depends(get_db)):
+    prop = db.query(PropertyModel).filter(PropertyModel.id == property_id).first()
+    if not prop:
+        raise HTTPException(status_code=404, detail="Property not found")
+    return prop

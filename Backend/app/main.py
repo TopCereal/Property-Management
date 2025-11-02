@@ -17,9 +17,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
-
 # Include routers here
 app.include_router(properties_router.router)
 app.include_router(tenants_router.router)

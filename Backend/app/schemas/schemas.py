@@ -14,6 +14,17 @@ class PropertyBase(BaseModel):
 class PropertyCreate(PropertyBase):
     pass
 
+class PropertyUpdate(PropertyBase):
+     pass
+
+class PropertyPatch(BaseModel):
+     address: Optional[str] = None
+     bedrooms: Optional[int] = None
+     bathrooms: Optional[float] = None
+     area: Optional[float] = None
+     rent_amount: Optional[Decimal] = None
+     status: Optional[str] = None
+
 class PropertyRead(PropertyBase):
     id: int
     created_at: Optional[datetime]
