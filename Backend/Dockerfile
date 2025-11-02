@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app
 
 ENV PYTHONUNBUFFERED=1
-ENV DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/pm_app
+ENV DATABASE_URL=postgresql+psycopg2://postgres:seaotter123@db:5432/pm_app
 ENV DB_SCHEMA=pm
 
 EXPOSE 8000
