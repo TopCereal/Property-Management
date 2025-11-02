@@ -1,12 +1,5 @@
 from pydantic import BaseModel
-from pydantic import BaseModel
-from typing import Optional, List
-from decimal import Decimal
-from datetime import datetime
-
-
-from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 from decimal import Decimal
 from datetime import datetime
 
@@ -67,6 +60,14 @@ class TenantPatch(BaseModel):
     email: Optional[str] = None
     phone: Optional[str] = None
     status: Optional[str] = None
+
+
+class TenantRead(TenantBase):
+    id: int
+    created_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True
 
 
 class TenantRead(TenantBase):

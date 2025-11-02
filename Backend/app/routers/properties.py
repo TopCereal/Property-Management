@@ -23,10 +23,10 @@ def create_property(payload: PropertyCreate, db: Session = Depends(get_db)):
     return db_obj
 
 
-@router.get("/", response_model=List[PropertyRead])
+@router.get("/", response_model=dict)
 def list_properties(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     props = db.query(PropertyModel).offset(skip).limit(limit).all()
-    return props
+    return {"value": props, "Count": len(props)}
 
 
 @router.get("/{property_id}", response_model=PropertyRead)
