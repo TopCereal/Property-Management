@@ -7,16 +7,20 @@ from dotenv import load_dotenv
 load_dotenv()
 
 APP_TITLE = os.getenv("APP_TITLE", "Property Manager (Desktop)")
-DATABASE_URL = "postgresql+psycopg2://postgres:seaotter123@127.0.0.1:5432/pm_app"
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:seaotter123@127.0.0.1:5432/pm_app")
 DB_SCHEMA = os.getenv("DB_SCHEMA", "pm")
 
-# Create the engine with explicit psycopg2 driver
+# Create the engine with explicit psycopg2 driver and connection retry
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
     pool_size=5,
     max_overflow=10,
-    echo=True  # Set to False in production
+    echo=bool(os.getenv("SQL_ECHO", "False").lower() == "true"),
+    connect_args={
+        "connect_timeout": 10,
+        "application_name": "property_manager"
+    }
 )
 
 metadata = MetaData(schema=DB_SCHEMA)
@@ -28,4 +32,5 @@ def get_db():
     try:
         yield db
     finally:
+        db.close()
         db.close()
