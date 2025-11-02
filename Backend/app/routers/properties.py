@@ -25,10 +25,18 @@ def create_property(payload: PropertyCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=dict)
 def list_properties(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    props = db.query(PropertyModel).offset(skip).limit(limit).all()
-    # Convert SQLAlchemy objects to Pydantic models for safe JSON serialization
-    value = [PropertyRead.from_orm(p).dict() for p in props]
-    return {"value": value, "Count": len(value)}
+    try:
+        props = db.query(PropertyModel).offset(skip).limit(limit).all()
+        # Convert SQLAlchemy objects to Pydantic models for safe JSON serialization
+        value = [PropertyRead.from_orm(p).dict() for p in props]
+        return {"value": value, "Count": len(value)}
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        print("Error in list_properties:", tb)
+        # Return a detailed error for debugging tests
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(tb))
 
 
 @router.get("/{property_id}", response_model=PropertyRead)

@@ -11,11 +11,18 @@ router = APIRouter(prefix="/tenants", tags=["tenants"])
 
 @router.post("/", response_model=TenantRead)
 def create_tenant(payload: TenantCreate, db: Session = Depends(get_db)):
-    db_obj = TenantModel(**payload.dict())
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
+    try:
+        db_obj = TenantModel(**payload.dict())
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+    except Exception:
+        import traceback
+        tb = traceback.format_exc()
+        print("Error in create_tenant:", tb)
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(tb))
 
 
 @router.get("/", response_model=List[TenantRead])
