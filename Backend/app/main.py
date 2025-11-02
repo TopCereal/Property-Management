@@ -6,7 +6,9 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 import logging
 import time
-import psutil
+import os
+import threading
+from tenacity import retry, stop_after_attempt, wait_exponential
 from datetime import datetime
 
 # Import routers
@@ -28,14 +30,28 @@ LAST_REQUEST_TIME = time.time()
 
 app = FastAPI(
     title="Property Management API",
-    description="""
-    Property Management System API
+    description="Property Management System API providing property CRUD operations, tenant management, maintenance requests, and financial tracking"
+)
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Gracefully shutdown the application"""
+    logger.info("Shutting down application...")
     
-    Features:
-    * Property CRUD operations
-    * Tenant management
-    * Maintenance requests
-    * Financial tracking
+    # Close database connections
+    await engine.dispose()
+    logger.info("Database connections closed")
+    """
+)
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Gracefully shutdown the application"""
+    logger.info("Shutting down application...")
+    
+    # Close database connections
+    await engine.dispose()
+    logger.info("Database connections closed")
     * Document storage
     """,
     version="1.0.0",
@@ -180,7 +196,7 @@ async def health_check(db: Session = Depends(get_db)):
 
 @app.get("/metrics",
          summary="API Metrics",
-         description="Get detailed API performance metrics",
+         description="Get basic API performance metrics",
          response_model=Metrics,
          responses={
              500: {"model": APIError, "description": "Internal server error"}
@@ -188,24 +204,22 @@ async def health_check(db: Session = Depends(get_db)):
 async def get_metrics(db: Session = Depends(get_db)):
     """Get API performance metrics"""
     try:
-        # Test database latency
-        start_time = time.time()
-        db.execute(text("SELECT 1"))
-        db_latency = (time.time() - start_time) * 1000
-
-        # Calculate requests per minute
-        elapsed_time = max(1, time.time() - LAST_REQUEST_TIME) / 60
-        rpm = REQUEST_COUNT / elapsed_time if elapsed_time > 0 else 0
+        # Test database latency with retry
+        @retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=1, min=1, max=2))
+        def check_db_latency():
+            start_time = time.time()
+            db.execute(text("SELECT 1"))
+            return (time.time() - start_time) * 1000
 
         return Metrics(
             uptime=time.time() - START_TIME,
-            database_latency_ms=db_latency,
-            active_connections=len(psutil.Process().connections()),
-            requests_per_minute=rpm,
+            database_latency_ms=check_db_latency(),
+            active_connections=len(engine.pool.checkedin()) + len(engine.pool.checkedout()),
+            requests_per_minute=REQUEST_COUNT,
             status={
-                "cpu_percent": psutil.cpu_percent(),
-                "memory_percent": psutil.Process().memory_percent(),
-                "thread_count": psutil.Process().num_threads()
+                "process_id": os.getpid(),
+                "thread_count": threading.active_count(),
+                "pool_size": engine.pool.size()
             }
         )
     except Exception as e:
