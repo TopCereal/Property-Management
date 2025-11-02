@@ -4,10 +4,12 @@ import LoginPage from './components/LoginPage';
 import ManagerPortal from './components/ManagerPortal';
 import TenantPortal from './components/tenant/TenantPortal';
 import { useProperties, useCreateProperty } from './src/hooks/useProperties';
+import { useTenants } from './src/hooks/useTenants';
 
 const App: React.FC = () => {
     // Properties will be loaded from the backend when available; fall back to local mock data
-    const { data: propertiesFromApi = [], isLoading: propertiesLoading } = useProperties() as any;
+    const { data: propertiesFromApi = [], isSuccess: propertiesOk } = useProperties() as any;
+    const { data: tenantsFromApi = [], isSuccess: tenantsOk } = useTenants() as any;
     const createPropertyMutation = useCreateProperty();
 
     const [properties, setProperties] = useState<Property[]>([
@@ -67,8 +69,9 @@ const App: React.FC = () => {
     };
 
     const data = {
-        properties: propertiesFromApi.length ? propertiesFromApi : properties,
-        tenants, maintenanceRequests, transactions, recurringTransactions, tenantFiles, propertyFiles, parkLayout, lateFeeSettings
+        properties: propertiesOk ? propertiesFromApi : properties,
+        tenants: tenantsOk ? tenantsFromApi : tenants,
+        maintenanceRequests, transactions, recurringTransactions, tenantFiles, propertyFiles, parkLayout, lateFeeSettings
     };
     const setters = {
         setProperties, setTenants, setMaintenanceRequests, setTransactions, setRecurringTransactions, setTenantFiles, setPropertyFiles, setParkLayout, setLateFeeSettings
