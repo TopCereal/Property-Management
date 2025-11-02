@@ -28,44 +28,38 @@ START_TIME = time.time()
 REQUEST_COUNT = 0
 LAST_REQUEST_TIME = time.time()
 
+# Global OpenAPI metadata and tag descriptions
 app = FastAPI(
     title="Property Management API",
-    description="Property Management System API providing property CRUD operations, tenant management, maintenance requests, and financial tracking"
-)
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Gracefully shutdown the application"""
-    logger.info("Shutting down application...")
-    
-    # Close database connections
-    await engine.dispose()
-    logger.info("Database connections closed")
-    """
-)
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Gracefully shutdown the application"""
-    logger.info("Shutting down application...")
-    
-    # Close database connections
-    await engine.dispose()
-    logger.info("Database connections closed")
-    * Document storage
-    """,
+    description=(
+        "Property Management System API providing property CRUD operations, "
+        "tenant management, maintenance requests, and financial tracking."
+    ),
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
-    contact={
-        "name": "API Support",
-        "email": "support@example.com",
-    },
-    license_info={
-        "name": "MIT",
-    }
+    contact={"name": "API Support", "email": "support@example.com"},
+    license_info={"name": "MIT"},
+    servers=[{"url": "http://localhost:8000", "description": "Local development server"}],
+    openapi_tags=[
+        {"name": "System", "description": "Health, metrics and system-level endpoints."},
+        {"name": "Properties", "description": "Manage properties: create, read, update, delete, and list."},
+        {"name": "Tenants", "description": "Manage tenants and related operations."},
+    ],
 )
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Gracefully shutdown the application by disposing resources."""
+    logger.info("Shutting down application...")
+    try:
+        # dispose() is synchronous for SQLAlchemy engines; use .dispose()
+        engine.dispose()
+        logger.info("Database connections closed")
+    except Exception:
+        logger.exception("Error while disposing engine during shutdown")
 
 # Configure CORS
 app.add_middleware(
