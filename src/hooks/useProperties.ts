@@ -34,3 +34,21 @@ export function useCreateProperty() {
     onSuccess: () => qc.invalidateQueries(['properties']),
   });
 }
+
+export function useUpdateProperty() {
+  const qc = useQueryClient();
+  return useMutation(
+    (args: { id: string | number; payload: Partial<components['schemas']['PropertyUpdate']> & Record<string, unknown> }) =>
+      api.put(`/properties/${Number(args.id)}`, args.payload),
+    {
+      onSuccess: () => qc.invalidateQueries(['properties']),
+    }
+  );
+}
+
+export function useDeleteProperty() {
+  const qc = useQueryClient();
+  return useMutation((id: string | number) => api.delete(`/properties/${Number(id)}`), {
+    onSuccess: () => qc.invalidateQueries(['properties']),
+  });
+}

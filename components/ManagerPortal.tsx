@@ -30,6 +30,8 @@ import ViewMaintenanceRequestDetailsModal from './modals/ViewMaintenanceRequestD
 import PropertyFilesModal from './modals/PropertyFilesModal';
 import UploadPropertyFileModal from './modals/UploadPropertyFileModal';
 import LateFeeSettingsModal from './modals/LateFeeSettingsModal';
+// Hooks to integrate with backend APIs
+import { useCreateProperty, useUpdateProperty, useDeleteProperty } from '../src/hooks/useProperties';
 
 type Page = 'properties' | 'tenants' | 'maintenance' | 'billing' | 'map';
 
@@ -89,6 +91,11 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
 
     const [activePage, setActivePage] = useState<Page>('properties');
     const [modal, setModal] = useState<ModalState>(null);
+
+    // Backend property mutations (invalidate queries on success)
+    const createProperty = useCreateProperty();
+    const updateProperty = useUpdateProperty();
+    const deleteProperty = useDeleteProperty();
 
     useEffect(() => {
         const today = new Date();
@@ -215,19 +222,44 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
     }, [maintenanceRequests]);
     
     const handleAddProperty = (propData: Omit<Property, 'id' | 'tenantId'>) => {
+        // Optimistic local add (for offline/local fallback)
         const newProperty: Property = { ...propData, id: `p${Date.now()}`, tenantId: null };
         setProperties(prev => [...prev, newProperty]);
-        setModal(null);
+        // Send to backend (backend accepts UI aliases like lotNumber/beds/...)
+        createProperty.mutate(propData as any, {
+            onError: (err) => {
+                console.error('Failed to create property:', err);
+                // Keep local fallback; optionally notify user
+            },
+            onSettled: () => {
+                setModal(null);
+            }
+        });
     };
     
     const handleEditProperty = (updatedProperty: Property) => {
+        // Optimistic local update
         setProperties(prev => prev.map(p => p.id === updatedProperty.id ? updatedProperty : p));
-        setModal(null);
+        // Prepare payload using UI aliases (backend maps them)
+        const { lotNumber, beds, baths, sqft, rent, amenities } = updatedProperty;
+        updateProperty.mutate({ id: updatedProperty.id, payload: { lotNumber, beds, baths, sqft, rent, amenities } as any }, {
+            onError: (err) => {
+                console.error('Failed to update property:', err);
+            },
+            onSettled: () => setModal(null)
+        });
     };
 
     const handleDeleteProperty = (propertyId: string) => {
         if(window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+            // Optimistic local delete
             setProperties(prev => prev.filter(p => p.id !== propertyId));
+            // Backend delete
+            deleteProperty.mutate(propertyId, {
+                onError: (err) => {
+                    console.error('Failed to delete property:', err);
+                }
+            });
         }
     };
     
