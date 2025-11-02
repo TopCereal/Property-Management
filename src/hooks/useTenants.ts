@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../lib/api';
+import type { components } from '../types/api';
 
-function mapApiTenant(t: any) {
+type ApiTenant = components['schemas']['TenantRead'];
+
+function mapApiTenant(t: ApiTenant) {
   // Map backend TenantRead -> UI Tenant shape
   const rawStatus = (t.status || '').toString().toLowerCase();
   let status: 'Active' | 'Applicant' | 'Disabled' | 'Declined' = 'Active';
