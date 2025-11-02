@@ -166,18 +166,37 @@ async def root():
 
 @app.get("/health",
          summary="Health Check",
-         description="Check the health status of the API and its dependencies",
+         description="""
+         Check the health status of the API and its dependencies.
+         
+         Returns:
+         - status: 'healthy' if all systems are operational
+         - version: current API version
+         - database: connection status and latency
+         - timestamp: time of the health check
+         
+         Use this endpoint for:
+         - Monitoring system health
+         - Load balancer checks
+         - Deployment verification
+         """,
          response_model=HealthCheck,
          responses={
-             503: {"model": APIError, "description": "Service unavailable"}
-         })
+             503: {"model": APIError, "description": "Service unavailable - Database connection failed"}
+         },
+         tags=["System"])
 async def health_check(db: Session = Depends(get_db)):
-    """Check API and database health"""
+    """Check API and database health status"""
     try:
-        start_time = time.time()
-        db.execute(text("SELECT 1"))
-        db_latency = (time.time() - start_time) * 1000
+        # Use retry for database check
+        @retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=1, min=1, max=2))
+        def check_db():
+            start = time.time()
+            db.execute(text("SELECT 1"))
+            return (time.time() - start) * 1000
 
+        db_latency = check_db()
+        
         if db_latency > 1000:  # Alert if DB latency > 1 second
             logger.warning(f"High database latency: {db_latency:.2f}ms")
 
@@ -195,8 +214,25 @@ async def health_check(db: Session = Depends(get_db)):
         )
 
 @app.get("/metrics",
-         summary="API Metrics",
-         description="Get basic API performance metrics",
+         summary="API Performance Metrics",
+         description="""
+         Get detailed API performance metrics and system status.
+         
+         Returns:
+         - uptime: seconds since server start
+         - database_latency_ms: current database query latency
+         - active_connections: number of active database connections
+         - requests_per_minute: current request rate
+         - status: detailed system metrics including:
+           * process_id: current process ID
+           * thread_count: active threads
+           * pool_size: database connection pool size
+         
+         Use this endpoint for:
+         - Performance monitoring
+         - Resource usage tracking
+         - Capacity planning
+         """,
          response_model=Metrics,
          responses={
              500: {"model": APIError, "description": "Internal server error"}
