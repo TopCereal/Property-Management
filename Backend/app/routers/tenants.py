@@ -155,19 +155,6 @@ def list_tenants(
         )
 
 
-@router.get("/{tenant_id}", response_model=TenantRead)
-def get_tenant(tenant_id: int, db: Session = Depends(get_db)):
-    t = db.query(TenantModel).filter(TenantModel.id == tenant_id).first()
-    if not t:
-        raise HTTPException(status_code=404, detail="Tenant not found")
-    return {
-        "id": t.id,
-        "first_name": t.first_name,
-        "last_name": t.last_name,
-        "email": t.email,
-        "phone": t.phone,
-        "status": t.status,
-        "created_at": t.created_at.isoformat() if t.created_at else None,
 @router.get("/{tenant_id}",
     response_model=TenantRead,
     summary="Get Tenant Details",
@@ -207,6 +194,13 @@ def get_tenant(
             "phone": t.phone,
             "status": t.status,
             "created_at": t.created_at.isoformat() if t.created_at else None,
+        }
+    except Exception as e:
+        logger.error(f"Error retrieving tenant {tenant_id}: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error retrieving tenant details"
+        )
 
 
 @router.put("/{tenant_id}", response_model=TenantRead)
