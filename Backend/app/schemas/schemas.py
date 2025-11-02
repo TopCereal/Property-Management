@@ -69,10 +69,3 @@ class TenantRead(TenantBase):
     class Config:
         orm_mode = True
 
-
-class TenantRead(TenantBase):
-    id: int
-    created_at: Optional[datetime]
-
-    class Config:
-        orm_mode = True
