@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "generate:types": "openapi-typescript http://localhost:8000/openapi.json --output src/types/api.d.ts"
+    "generate:types": "openapi-typescript http://localhost:8000/openapi.json --output src/types/api.d.ts",
+    "generate:types:local": "openapi-typescript Backend/openapi.json --output src/types/api.d.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.42.0",
