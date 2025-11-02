@@ -3,482 +3,924 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
-  "/properties/": {
-    /** List Properties */
-    get: operations["list_properties_properties__get"];
-    /** Create Property */
-    post: operations["create_property_properties__post"];
-  };
-  "/properties/{property_id}": {
-    /** Get Property */
-    get: operations["get_property_properties__property_id__get"];
-    /** Update Property */
-    put: operations["update_property_properties__property_id__put"];
-    /** Delete Property */
-    delete: operations["delete_property_properties__property_id__delete"];
-    /** Patch Property */
-    patch: operations["patch_property_properties__property_id__patch"];
-  };
-  "/tenants/": {
-    /** List Tenants */
-    get: operations["list_tenants_tenants__get"];
-    /** Create Tenant */
-    post: operations["create_tenant_tenants__post"];
-  };
-  "/tenants/{tenant_id}": {
-    /** Get Tenant */
-    get: operations["get_tenant_tenants__tenant_id__get"];
-    /** Update Tenant */
-    put: operations["update_tenant_tenants__tenant_id__put"];
-    /** Delete Tenant */
-    delete: operations["delete_tenant_tenants__tenant_id__delete"];
-    /** Patch Tenant */
-    patch: operations["patch_tenant_tenants__tenant_id__patch"];
-  };
-  "/": {
-    /** Root */
-    get: operations["root__get"];
-  };
-  "/health": {
-    /** Health Check */
-    get: operations["health_check_health_get"];
-  };
+    "/properties/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Properties
+         * @description Retrieve a paginated list of properties.
+         *
+         *         Parameters:
+         *         - skip: Number of records to skip (pagination offset)
+         *         - limit: Maximum number of records to return
+         *         - status: Optional filter by property status
+         *
+         *         Returns a dictionary containing:
+         *         - total: Total number of properties
+         *         - properties: List of property objects
+         *         - page_info: Pagination metadata
+         */
+        get: operations["list_properties_properties__get"];
+        put?: never;
+        /**
+         * Create Property
+         * @description Create a new property in the system.
+         *
+         *         Parameters:
+         *         - address: Full property address
+         *         - bedrooms: Number of bedrooms
+         *         - bathrooms: Number of bathrooms
+         *         - area: Property area in square feet
+         *         - rent_amount: Monthly rent amount
+         *         - status: Property status (available, rented, maintenance)
+         *
+         *         Also accepts UI-friendly aliases:
+         *         - lotNumber -> address
+         *         - beds -> bedrooms
+         *         - baths -> bathrooms
+         *         - sqft -> area
+         *         - rent -> rent_amount
+         *
+         *         Returns the created property with all fields including the assigned ID.
+         */
+        post: operations["create_property_properties__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/properties/{property_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Property Details
+         * @description Retrieve detailed information about a specific property.
+         *
+         *         Parameters:
+         *         - property_id: Unique identifier of the property
+         *
+         *         Returns a single property with all its details.
+         */
+        get: operations["get_property_properties__property_id__get"];
+        /**
+         * Update Property (replace)
+         * @description Replace a property's details. Supports both backend field names and UI aliases:
+         *         - lotNumber -> address
+         *         - beds -> bedrooms
+         *         - baths -> bathrooms
+         *         - sqft -> area
+         *         - rent -> rent_amount
+         */
+        put: operations["update_property_properties__property_id__put"];
+        post?: never;
+        /** Delete Property */
+        delete: operations["delete_property_properties__property_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Patch Property (partial)
+         * @description Partially update property fields. Supports both backend field names and UI aliases
+         *         (lotNumber/beds/baths/sqft/rent).
+         */
+        patch: operations["patch_property_properties__property_id__patch"];
+        trace?: never;
+    };
+    "/tenants/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Tenants */
+        get: operations["list_tenants_tenants__get"];
+        put?: never;
+        /** Create Tenant */
+        post: operations["create_tenant_tenants__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tenants/{tenant_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Tenant */
+        get: operations["get_tenant_tenants__tenant_id__get"];
+        /** Update Tenant */
+        put: operations["update_tenant_tenants__tenant_id__put"];
+        post?: never;
+        /** Delete Tenant */
+        delete: operations["delete_tenant_tenants__tenant_id__delete"];
+        options?: never;
+        head?: never;
+        /** Patch Tenant */
+        patch: operations["patch_tenant_tenants__tenant_id__patch"];
+        trace?: never;
+    };
+    "/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * API Root
+         * @description Returns basic API information
+         */
+        get: operations["root__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Health Check
+         * @description Check the health status of the API and its dependencies.
+         *
+         *              Returns:
+         *              - status: 'healthy' if all systems are operational
+         *              - version: current API version
+         *              - database: connection status and latency
+         *              - timestamp: time of the health check
+         *
+         *              Use this endpoint for:
+         *              - Monitoring system health
+         *              - Load balancer checks
+         *              - Deployment verification
+         */
+        get: operations["health_check_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * API Performance Metrics
+         * @description Get detailed API performance metrics and system status.
+         *
+         *              Returns:
+         *              - uptime: seconds since server start
+         *              - database_latency_ms: current database query latency
+         *              - active_connections: number of active database connections
+         *              - requests_per_minute: current request rate
+         *              - status: detailed system metrics including:
+         *                * process_id: current process ID
+         *                * thread_count: active threads
+         *                * pool_size: database connection pool size
+         *
+         *              Use this endpoint for:
+         *              - Performance monitoring
+         *              - Resource usage tracking
+         *              - Capacity planning
+         */
+        get: operations["get_metrics_metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
-
 export type webhooks = Record<string, never>;
-
 export interface components {
-  schemas: {
-    /** HTTPValidationError */
-    HTTPValidationError: {
-      /** Detail */
-      detail?: components["schemas"]["ValidationError"][];
+    schemas: {
+        /**
+         * APIError
+         * @description Standard error response model
+         */
+        APIError: {
+            /** Error */
+            error: string;
+            /** Detail */
+            detail?: string | null;
+            /** Path */
+            path?: string | null;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @default 2025-11-02T01:55:38.662762
+             */
+            timestamp: string;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * HealthCheck
+         * @description Health check response model
+         */
+        HealthCheck: {
+            /** Status */
+            status: string;
+            /** Version */
+            version: string;
+            /** Database */
+            database: string;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
+        };
+        /**
+         * Metrics
+         * @description API metrics response model
+         */
+        Metrics: {
+            /** Uptime */
+            uptime: number;
+            /** Database Latency Ms */
+            database_latency_ms: number;
+            /** Active Connections */
+            active_connections: number;
+            /** Requests Per Minute */
+            requests_per_minute: number;
+            /** Status */
+            status: Record<string, never>;
+        };
+        /** PropertyCreate */
+        PropertyCreate: {
+            /** Address */
+            address: string;
+            /** Bedrooms */
+            bedrooms?: number | null;
+            /** Bathrooms */
+            bathrooms?: number | null;
+            /** Area */
+            area?: number | null;
+            /** Rent Amount */
+            rent_amount?: number | string | null;
+            /** Status */
+            status?: string | null;
+        };
+        /** PropertyPatch */
+        PropertyPatch: {
+            /** Address */
+            address?: string | null;
+            /** Bedrooms */
+            bedrooms?: number | null;
+            /** Bathrooms */
+            bathrooms?: number | null;
+            /** Area */
+            area?: number | null;
+            /** Rent Amount */
+            rent_amount?: number | string | null;
+            /** Status */
+            status?: string | null;
+        };
+        /** PropertyRead */
+        PropertyRead: {
+            /** Address */
+            address: string;
+            /** Bedrooms */
+            bedrooms?: number | null;
+            /** Bathrooms */
+            bathrooms?: number | null;
+            /** Area */
+            area?: number | null;
+            /** Rent Amount */
+            rent_amount?: string | null;
+            /** Status */
+            status?: string | null;
+            /** Id */
+            id: number;
+            /** Created At */
+            created_at: string | null;
+        };
+        /** PropertyUpdate */
+        PropertyUpdate: {
+            /** Address */
+            address: string;
+            /** Bedrooms */
+            bedrooms?: number | null;
+            /** Bathrooms */
+            bathrooms?: number | null;
+            /** Area */
+            area?: number | null;
+            /** Rent Amount */
+            rent_amount?: number | string | null;
+            /** Status */
+            status?: string | null;
+        };
+        /** TenantCreate */
+        TenantCreate: {
+            /** First Name */
+            first_name?: string | null;
+            /** Last Name */
+            last_name?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Status */
+            status?: string | null;
+        };
+        /** TenantRead */
+        TenantRead: {
+            /** First Name */
+            first_name?: string | null;
+            /** Last Name */
+            last_name?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Status */
+            status?: string | null;
+            /** Id */
+            id: number;
+            /** Created At */
+            created_at: string | null;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
     };
-    /** PropertyCreate */
-    PropertyCreate: {
-      /** Address */
-      address: string;
-      /** Bedrooms */
-      bedrooms?: number | null;
-      /** Bathrooms */
-      bathrooms?: number | null;
-      /** Area */
-      area?: number | null;
-      /** Rent Amount */
-      rent_amount?: number | string | null;
-      /** Status */
-      status?: string | null;
-    };
-    /** PropertyPatch */
-    PropertyPatch: {
-      /** Address */
-      address?: string | null;
-      /** Bedrooms */
-      bedrooms?: number | null;
-      /** Bathrooms */
-      bathrooms?: number | null;
-      /** Area */
-      area?: number | null;
-      /** Rent Amount */
-      rent_amount?: number | string | null;
-      /** Status */
-      status?: string | null;
-    };
-    /** PropertyRead */
-    PropertyRead: {
-      /** Address */
-      address: string;
-      /** Bedrooms */
-      bedrooms?: number | null;
-      /** Bathrooms */
-      bathrooms?: number | null;
-      /** Area */
-      area?: number | null;
-      /** Rent Amount */
-      rent_amount?: string | null;
-      /** Status */
-      status?: string | null;
-      /** Id */
-      id: number;
-      /** Created At */
-      created_at: string | null;
-    };
-    /** PropertyUpdate */
-    PropertyUpdate: {
-      /** Address */
-      address: string;
-      /** Bedrooms */
-      bedrooms?: number | null;
-      /** Bathrooms */
-      bathrooms?: number | null;
-      /** Area */
-      area?: number | null;
-      /** Rent Amount */
-      rent_amount?: number | string | null;
-      /** Status */
-      status?: string | null;
-    };
-    /** TenantCreate */
-    TenantCreate: {
-      /** First Name */
-      first_name?: string | null;
-      /** Last Name */
-      last_name?: string | null;
-      /** Email */
-      email?: string | null;
-      /** Phone */
-      phone?: string | null;
-      /** Status */
-      status?: string | null;
-    };
-    /** TenantRead */
-    TenantRead: {
-      /** First Name */
-      first_name?: string | null;
-      /** Last Name */
-      last_name?: string | null;
-      /** Email */
-      email?: string | null;
-      /** Phone */
-      phone?: string | null;
-      /** Status */
-      status?: string | null;
-      /** Id */
-      id: number;
-      /** Created At */
-      created_at: string | null;
-    };
-    /** ValidationError */
-    ValidationError: {
-      /** Location */
-      loc: (string | number)[];
-      /** Message */
-      msg: string;
-      /** Error Type */
-      type: string;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
-
 export type $defs = Record<string, never>;
-
-export type external = Record<string, never>;
-
 export interface operations {
-
-  /** List Properties */
-  list_properties_properties__get: {
-    parameters: {
-      query?: {
-        skip?: number;
-        limit?: number;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": Record<string, never>;
+    list_properties_properties__get: {
+        parameters: {
+            query?: {
+                /** @description Number of records to skip */
+                skip?: number;
+                /** @description Maximum number of records to return */
+                limit?: number;
+                /** @description Filter by property status */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+        requestBody?: never;
+        responses: {
+            /** @description List of properties retrieved successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Database error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-      };
     };
-  };
-  /** Create Property */
-  create_property_properties__post: {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["PropertyCreate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["PropertyRead"];
+    create_property_properties__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PropertyCreate"];
+            };
         };
-      };
-    };
-  };
-  /** Get Property */
-  get_property_properties__property_id__get: {
-    parameters: {
-      path: {
-        property_id: number;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["PropertyRead"];
+        responses: {
+            /** @description Property created successfully */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyRead"];
+                };
+            };
+            /** @description Validation error in request body */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIError"];
+                };
+            };
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+    };
+    get_property_properties__property_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ID of the property to retrieve */
+                property_id: number;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  /** Update Property */
-  update_property_properties__property_id__put: {
-    parameters: {
-      path: {
-        property_id: number;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["PropertyUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["PropertyRead"];
+        requestBody?: never;
+        responses: {
+            /** @description Property details retrieved successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyRead"];
+                };
+            };
+            /** @description Property not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Database error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+    };
+    update_property_properties__property_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                property_id: number;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  /** Delete Property */
-  delete_property_properties__property_id__delete: {
-    parameters: {
-      path: {
-        property_id: number;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": unknown;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PropertyUpdate"];
+            };
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIError"];
+                };
+            };
         };
-      };
     };
-  };
-  /** Patch Property */
-  patch_property_properties__property_id__patch: {
-    parameters: {
-      path: {
-        property_id: number;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["PropertyPatch"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["PropertyRead"];
+    delete_property_properties__property_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                property_id: number;
+            };
+            cookie?: never;
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIError"];
+                };
+            };
         };
-      };
     };
-  };
-  /** List Tenants */
-  list_tenants_tenants__get: {
-    parameters: {
-      query?: {
-        skip?: number;
-        limit?: number;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["TenantRead"][];
+    patch_property_properties__property_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                property_id: number;
+            };
+            cookie?: never;
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PropertyPatch"];
+            };
         };
-      };
-    };
-  };
-  /** Create Tenant */
-  create_tenant_tenants__post: {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["TenantCreate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["TenantRead"];
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIError"];
+                };
+            };
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+    };
+    list_tenants_tenants__get: {
+        parameters: {
+            query?: {
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-  };
-  /** Get Tenant */
-  get_tenant_tenants__tenant_id__get: {
-    parameters: {
-      path: {
-        tenant_id: number;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["TenantRead"];
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+    };
+    create_tenant_tenants__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-  };
-  /** Update Tenant */
-  update_tenant_tenants__tenant_id__put: {
-    parameters: {
-      path: {
-        tenant_id: number;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["TenantCreate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["TenantRead"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TenantCreate"];
+            };
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
-      };
     };
-  };
-  /** Delete Tenant */
-  delete_tenant_tenants__tenant_id__delete: {
-    parameters: {
-      path: {
-        tenant_id: number;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": unknown;
+    get_tenant_tenants__tenant_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: number;
+            };
+            cookie?: never;
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
-      };
     };
-  };
-  /** Patch Tenant */
-  patch_tenant_tenants__tenant_id__patch: {
-    parameters: {
-      path: {
-        tenant_id: number;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": Record<string, never>;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["TenantRead"];
+    update_tenant_tenants__tenant_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: number;
+            };
+            cookie?: never;
         };
-      };
-      /** @description Validation Error */
-      422: {
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TenantCreate"];
+            };
         };
-      };
-    };
-  };
-  /** Root */
-  root__get: {
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": unknown;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
-      };
     };
-  };
-  /** Health Check */
-  health_check_health_get: {
-    responses: {
-      /** @description Successful Response */
-      200: {
-        content: {
-          "application/json": unknown;
+    delete_tenant_tenants__tenant_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: number;
+            };
+            cookie?: never;
         };
-      };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
     };
-  };
+    patch_tenant_tenants__tenant_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    root__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    health_check_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthCheck"];
+                };
+            };
+            /** @description Service unavailable - Database connection failed */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIError"];
+                };
+            };
+        };
+    };
+    get_metrics_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Metrics"];
+                };
+            };
+            /** @description Internal server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["APIError"];
+                };
+            };
+        };
+    };
 }
