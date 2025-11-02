@@ -39,6 +39,13 @@ router = APIRouter(
     - rent_amount: Monthly rent amount
     - status: Property status (available, rented, maintenance)
     
+    Also accepts UI-friendly aliases:
+    - lotNumber -> address
+    - beds -> bedrooms
+    - baths -> bathrooms
+    - sqft -> area
+    - rent -> rent_amount
+    
     Returns the created property with all fields including the assigned ID.
     """,
     responses={
@@ -52,7 +59,7 @@ def create_property(
     db: Session = Depends(get_db)
 ):
     """Create a new property with the provided details"""
-    db_obj = PropertyModel(**payload.dict())
+    db_obj = PropertyModel(**payload.model_dump())
     db.add(db_obj)
     db.commit()
     db.refresh(db_obj)
@@ -189,13 +196,23 @@ def get_property(
         )
 
 
-@router.put("/{property_id}", response_model=PropertyRead)
+@router.put("/{property_id}", response_model=PropertyRead,
+    summary="Update Property (replace)",
+    description="""
+    Replace a property's details. Supports both backend field names and UI aliases:
+    - lotNumber -> address
+    - beds -> bedrooms
+    - baths -> bathrooms
+    - sqft -> area
+    - rent -> rent_amount
+    """
+)
 def update_property(property_id: int, payload: PropertyUpdate, db: Session = Depends(get_db)):
     db_property = db.query(PropertyModel).filter(PropertyModel.id == property_id).first()
     if db_property is None:
         raise HTTPException(status_code=404, detail="Property not found")
 
-    for field, value in payload.dict(exclude_unset=True).items():
+    for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(db_property, field, value)
 
     db.commit()
@@ -212,13 +229,19 @@ def update_property(property_id: int, payload: PropertyUpdate, db: Session = Dep
     }
 
 
-@router.patch("/{property_id}", response_model=PropertyRead)
+@router.patch("/{property_id}", response_model=PropertyRead,
+    summary="Patch Property (partial)",
+    description="""
+    Partially update property fields. Supports both backend field names and UI aliases
+    (lotNumber/beds/baths/sqft/rent).
+    """
+)
 def patch_property(property_id: int, payload: PropertyPatch, db: Session = Depends(get_db)):
     db_property = db.query(PropertyModel).filter(PropertyModel.id == property_id).first()
     if db_property is None:
         raise HTTPException(status_code=404, detail="Property not found")
 
-    for field, value in payload.dict(exclude_unset=True).items():
+    for field, value in payload.model_dump(exclude_unset=True).items():
         if value is not None:
             setattr(db_property, field, value)
 
