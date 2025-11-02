@@ -16,7 +16,15 @@ def create_tenant(payload: TenantCreate, db: Session = Depends(get_db)):
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
-        return db_obj
+        return {
+            "id": db_obj.id,
+            "first_name": db_obj.first_name,
+            "last_name": db_obj.last_name,
+            "email": db_obj.email,
+            "phone": db_obj.phone,
+            "status": db_obj.status,
+            "created_at": db_obj.created_at.isoformat() if db_obj.created_at else None,
+        }
     except Exception:
         import traceback
         tb = traceback.format_exc()
@@ -28,7 +36,18 @@ def create_tenant(payload: TenantCreate, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[TenantRead])
 def list_tenants(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     tenants = db.query(TenantModel).offset(skip).limit(limit).all()
-    return tenants
+    value = []
+    for t in tenants:
+        value.append({
+            "id": t.id,
+            "first_name": t.first_name,
+            "last_name": t.last_name,
+            "email": t.email,
+            "phone": t.phone,
+            "status": t.status,
+            "created_at": t.created_at.isoformat() if t.created_at else None,
+        })
+    return value
 
 
 @router.get("/{tenant_id}", response_model=TenantRead)
@@ -36,7 +55,15 @@ def get_tenant(tenant_id: int, db: Session = Depends(get_db)):
     t = db.query(TenantModel).filter(TenantModel.id == tenant_id).first()
     if not t:
         raise HTTPException(status_code=404, detail="Tenant not found")
-    return t
+    return {
+        "id": t.id,
+        "first_name": t.first_name,
+        "last_name": t.last_name,
+        "email": t.email,
+        "phone": t.phone,
+        "status": t.status,
+        "created_at": t.created_at.isoformat() if t.created_at else None,
+    }
 
 
 @router.put("/{tenant_id}", response_model=TenantRead)
@@ -50,7 +77,15 @@ def update_tenant(tenant_id: int, payload: TenantCreate, db: Session = Depends(g
 
     db.commit()
     db.refresh(db_tenant)
-    return db_tenant
+    return {
+        "id": db_tenant.id,
+        "first_name": db_tenant.first_name,
+        "last_name": db_tenant.last_name,
+        "email": db_tenant.email,
+        "phone": db_tenant.phone,
+        "status": db_tenant.status,
+        "created_at": db_tenant.created_at.isoformat() if db_tenant.created_at else None,
+    }
 
 
 @router.patch("/{tenant_id}", response_model=TenantRead)
@@ -65,7 +100,15 @@ def patch_tenant(tenant_id: int, payload: TenantPatch, db: Session = Depends(get
 
     db.commit()
     db.refresh(db_tenant)
-    return db_tenant
+    return {
+        "id": db_tenant.id,
+        "first_name": db_tenant.first_name,
+        "last_name": db_tenant.last_name,
+        "email": db_tenant.email,
+        "phone": db_tenant.phone,
+        "status": db_tenant.status,
+        "created_at": db_tenant.created_at.isoformat() if db_tenant.created_at else None,
+    }
 
 
 @router.delete("/{tenant_id}")
