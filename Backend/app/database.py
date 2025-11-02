@@ -16,11 +16,7 @@ engine = create_engine(
     pool_pre_ping=True,
     pool_size=5,
     max_overflow=10,
-    echo=bool(os.getenv("SQL_ECHO", "False").lower() == "true"),
-    connect_args={
-        "connect_timeout": 10,
-        "application_name": "property_manager"
-    }
+    echo=bool(os.getenv("SQL_ECHO", "False").lower() == "true")
 )
 
 metadata = MetaData(schema=DB_SCHEMA)
