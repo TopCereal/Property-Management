@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Property, Tenant, MaintenanceRequest, Transaction, RecurringTransaction, TenantFile, RecurringFrequency, MaintenanceAttachment, PropertyFile, ParkLayout, LateFeeSettings } from '../types';
 
 // Components
@@ -96,6 +97,7 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
     const createProperty = useCreateProperty();
     const updateProperty = useUpdateProperty();
     const deleteProperty = useDeleteProperty();
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         const today = new Date();
@@ -225,6 +227,11 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
         // Optimistic local add (for offline/local fallback)
         const newProperty: Property = { ...propData, id: `p${Date.now()}`, tenantId: null };
         setProperties(prev => [...prev, newProperty]);
+        // Reflect optimistic change in react-query cache so UI shows it even when API data is active
+        queryClient.setQueryData<Property[] | undefined>(['properties'], (prev) => {
+            if (!prev) return [newProperty];
+            return [...prev, newProperty];
+        });
         // Send to backend (backend accepts UI aliases like lotNumber/beds/...)
         createProperty.mutate(propData as any, {
             onError: (err) => {
@@ -233,6 +240,8 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
             },
             onSettled: () => {
                 setModal(null);
+                // Reconcile with server
+                queryClient.invalidateQueries({ queryKey: ['properties'] });
             }
         });
     };
@@ -240,26 +249,51 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
     const handleEditProperty = (updatedProperty: Property) => {
         // Optimistic local update
         setProperties(prev => prev.map(p => p.id === updatedProperty.id ? updatedProperty : p));
+        // Also update react-query cache so UI updates when API data is active
+        queryClient.setQueryData<Property[] | undefined>(['properties'], (prev) => {
+            if (!prev) return prev;
+            return prev.map(p => p.id === updatedProperty.id ? updatedProperty : p);
+        });
         // Prepare payload using UI aliases (backend maps them)
         const { lotNumber, beds, baths, sqft, rent, amenities } = updatedProperty;
-        updateProperty.mutate({ id: updatedProperty.id, payload: { lotNumber, beds, baths, sqft, rent, amenities } as any }, {
-            onError: (err) => {
-                console.error('Failed to update property:', err);
-            },
-            onSettled: () => setModal(null)
-        });
+        const numericId = Number(updatedProperty.id);
+        if (Number.isFinite(numericId)) {
+            updateProperty.mutate({ id: numericId, payload: { lotNumber, beds, baths, sqft, rent, amenities } as any }, {
+                onError: (err) => {
+                    console.error('Failed to update property:', err);
+                },
+                onSettled: () => {
+                    setModal(null);
+                    queryClient.invalidateQueries({ queryKey: ['properties'] });
+                }
+            });
+        } else {
+            // Local-only update for mock items
+            setModal(null);
+        }
     };
 
     const handleDeleteProperty = (propertyId: string) => {
         if(window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
             // Optimistic local delete
             setProperties(prev => prev.filter(p => p.id !== propertyId));
-            // Backend delete
-            deleteProperty.mutate(propertyId, {
-                onError: (err) => {
-                    console.error('Failed to delete property:', err);
-                }
+            // Also update react-query cache immediately
+            queryClient.setQueryData<Property[] | undefined>(['properties'], (prev) => {
+                if (!prev) return prev;
+                return prev.filter(p => p.id !== propertyId);
             });
+            // Backend delete
+            const numericId = Number(propertyId);
+            if (Number.isFinite(numericId)) {
+                deleteProperty.mutate(numericId, {
+                    onError: (err) => {
+                        console.error('Failed to delete property:', err);
+                    },
+                    onSettled: () => {
+                        queryClient.invalidateQueries({ queryKey: ['properties'] });
+                    }
+                });
+            }
         }
     };
     
