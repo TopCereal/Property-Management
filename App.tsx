@@ -3,9 +3,13 @@ import { Property, Tenant, MaintenanceRequest, Transaction, RecurringTransaction
 import LoginPage from './components/LoginPage';
 import ManagerPortal from './components/ManagerPortal';
 import TenantPortal from './components/tenant/TenantPortal';
+import { useProperties, useCreateProperty } from './src/hooks/useProperties';
 
 const App: React.FC = () => {
-    // Mock Data - This remains the source of truth
+    // Properties will be loaded from the backend when available; fall back to local mock data
+    const { data: propertiesFromApi = [], isLoading: propertiesLoading } = useProperties() as any;
+    const createPropertyMutation = useCreateProperty();
+
     const [properties, setProperties] = useState<Property[]>([
         { id: 'p1', lotNumber: '101', beds: 3, baths: 2, sqft: 1200, rent: 1500, amenities: 'Washer/Dryer, Dishwasher', tenantId: 't1' },
         { id: 'p2', lotNumber: '102', beds: 2, baths: 1, sqft: 900, rent: 1200, amenities: 'Washer/Dryer', tenantId: null },
@@ -63,7 +67,8 @@ const App: React.FC = () => {
     };
 
     const data = {
-        properties, tenants, maintenanceRequests, transactions, recurringTransactions, tenantFiles, propertyFiles, parkLayout, lateFeeSettings
+        properties: propertiesFromApi.length ? propertiesFromApi : properties,
+        tenants, maintenanceRequests, transactions, recurringTransactions, tenantFiles, propertyFiles, parkLayout, lateFeeSettings
     };
     const setters = {
         setProperties, setTenants, setMaintenanceRequests, setTransactions, setRecurringTransactions, setTenantFiles, setPropertyFiles, setParkLayout, setLateFeeSettings
