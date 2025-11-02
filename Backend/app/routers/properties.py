@@ -187,21 +187,6 @@ def get_property(
             status_code=500,
             detail="Error retrieving property details"
         )
-    except Exception as e:
-        logger.error(f"Error retrieving property {property_id}: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail="Error retrieving property details"
-        )
-        "id": prop.id,
-        "address": prop.address,
-        "bedrooms": prop.bedrooms,
-        "bathrooms": prop.bathrooms,
-        "area": prop.area,
-        "rent_amount": str(prop.rent_amount) if prop.rent_amount is not None else None,
-        "status": prop.status,
-        "created_at": prop.created_at.isoformat() if prop.created_at else None,
-    }
 
 
 @router.put("/{property_id}", response_model=PropertyRead)
