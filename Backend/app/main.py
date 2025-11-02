@@ -81,16 +81,30 @@ async def log_requests(request, call_next):
 @app.on_event("startup")
 async def startup_event():
     """Initialize application state and verify database connection"""
+    from tenacity import retry, stop_after_attempt, wait_exponential
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=4, max=10)
+    )
+    def check_db_connection():
+        try:
+            # Test the database connection
+            with engine.connect() as connection:
+                connection.execute(text("SELECT 1"))
+                connection.commit()
+            logger.info("Database connection successful")
+            return True
+        except Exception as e:
+            logger.error(f"Database connection failed: {str(e)}")
+            raise
+
     try:
-        # Test the database connection without using get_db
-        with engine.connect() as connection:
-            connection.execute(text("SELECT 1"))
-            connection.commit()
-        logger.info("Database connection successful")
+        check_db_connection()
     except Exception as e:
-        logger.error(f"Database connection failed: {str(e)}")
-        # Log error but don't raise to allow the API to start
-        pass
+        # Log error but allow the server to start
+        logger.error(f"All database connection attempts failed: {str(e)}")
+        # We'll handle individual request failures in the database session
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
