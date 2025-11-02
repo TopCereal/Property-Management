@@ -234,9 +234,14 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
         });
         // Send to backend (backend accepts UI aliases like lotNumber/beds/...)
         createProperty.mutate(propData as any, {
-            onError: (err) => {
+            onError: (err: any) => {
                 console.error('Failed to create property:', err);
-                // Keep local fallback; optionally notify user
+                if (err?.response) {
+                    alert(`Create failed: ${err.response.status} ${err.response.statusText}`);
+                } else {
+                    alert(`Create failed: ${String(err?.message || err)}`);
+                }
+                // Keep local fallback
             },
             onSettled: () => {
                 setModal(null);
@@ -259,8 +264,13 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
         const numericId = Number(updatedProperty.id);
         if (Number.isFinite(numericId)) {
             updateProperty.mutate({ id: numericId, payload: { lotNumber, beds, baths, sqft, rent, amenities } as any }, {
-                onError: (err) => {
+                onError: (err: any) => {
                     console.error('Failed to update property:', err);
+                    if (err?.response) {
+                        alert(`Update failed: ${err.response.status} ${err.response.statusText}`);
+                    } else {
+                        alert(`Update failed: ${String(err?.message || err)}`);
+                    }
                 },
                 onSettled: () => {
                     setModal(null);
@@ -286,8 +296,13 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
             const numericId = Number(propertyId);
             if (Number.isFinite(numericId)) {
                 deleteProperty.mutate(numericId, {
-                    onError: (err) => {
+                    onError: (err: any) => {
                         console.error('Failed to delete property:', err);
+                        if (err?.response) {
+                            alert(`Delete failed: ${err.response.status} ${err.response.statusText}`);
+                        } else {
+                            alert(`Delete failed: ${String(err?.message || err)}`);
+                        }
                     },
                     onSettled: () => {
                         queryClient.invalidateQueries({ queryKey: ['properties'] });
