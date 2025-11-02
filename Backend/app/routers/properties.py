@@ -26,7 +26,9 @@ def create_property(payload: PropertyCreate, db: Session = Depends(get_db)):
 @router.get("/", response_model=dict)
 def list_properties(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     props = db.query(PropertyModel).offset(skip).limit(limit).all()
-    return {"value": props, "Count": len(props)}
+    # Convert SQLAlchemy objects to Pydantic models for safe JSON serialization
+    value = [PropertyRead.from_orm(p).dict() for p in props]
+    return {"value": value, "Count": len(value)}
 
 
 @router.get("/{property_id}", response_model=PropertyRead)
