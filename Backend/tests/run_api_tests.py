@@ -19,7 +19,14 @@ def test_properties():
     r = requests.get(f"{BASE}/properties/", timeout=TIMEOUT)
     ok(r.status_code == 200, f"GET /properties/ should return 200, got {r.status_code}")
     data = r.json()
-    initial_count = len(data.get('value', []) ) if isinstance(data, dict) else len(data)
+    # API may return either a list or a dict with 'value' key
+    if isinstance(data, dict) and 'value' in data:
+        initial_list = data['value']
+    elif isinstance(data, list):
+        initial_list = data
+    else:
+        initial_list = []
+    initial_count = len(initial_list)
 
     # 2. create
     payload = {
@@ -39,7 +46,14 @@ def test_properties():
     # 3. list increased
     r = requests.get(f"{BASE}/properties/", timeout=TIMEOUT)
     ok(r.status_code == 200, "GET /properties/ after create returns 200")
-    new_count = len(r.json().get('value', []))
+    data2 = r.json()
+    if isinstance(data2, dict) and 'value' in data2:
+        new_list = data2['value']
+    elif isinstance(data2, list):
+        new_list = data2
+    else:
+        new_list = []
+    new_count = len(new_list)
     ok(new_count == initial_count + 1, f"Property count should increase by 1 (was {initial_count}, now {new_count})")
 
     # 4. get by id

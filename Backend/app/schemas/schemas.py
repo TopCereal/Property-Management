@@ -5,6 +5,12 @@ from decimal import Decimal
 from datetime import datetime
 
 
+from pydantic import BaseModel
+from typing import Optional, List
+from decimal import Decimal
+from datetime import datetime
+
+
 class PropertyBase(BaseModel):
     address: str
     bedrooms: Optional[int] = None
@@ -51,15 +57,17 @@ class TenantCreate(TenantBase):
     pass
 
 
-class TenantRead(TenantBase):
-    id: int
-    created_at: Optional[datetime]
-
-    class Config:
-        orm_mode = True
-
-class TenantCreate(TenantBase):
+class TenantUpdate(TenantBase):
     pass
+
+
+class TenantPatch(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    status: Optional[str] = None
+
 
 class TenantRead(TenantBase):
     id: int
