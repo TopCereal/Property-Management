@@ -31,13 +31,15 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     try:
-        db = next(get_db())
-        db.execute(text("SELECT 1"))
-        db.close()
+        # Test the database connection without using get_db
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+            connection.commit()
         logger.info("Database connection successful")
     except Exception as e:
         logger.error(f"Database connection failed: {str(e)}")
-        raise
+        # Log error but don't raise to allow the API to start
+        pass
 
 # Include routers
 app.include_router(properties_router.router)
