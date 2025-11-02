@@ -27,32 +27,32 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ onClose, onAddPrope
     <BaseModal title="Add New Property" onClose={onClose}>
       <form onSubmit={handleSubmit} className="p-6 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Lot Number</label>
-          <input type="text" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+          <label htmlFor="lotNumber" className="block text-sm font-medium text-gray-700">Lot Number</label>
+          <input id="lotNumber" name="lotNumber" type="text" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
         </div>
         <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Beds</label>
-              <input type="number" value={beds} onChange={(e) => setBeds(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+              <label htmlFor="beds" className="block text-sm font-medium text-gray-700">Beds</label>
+              <input id="beds" name="beds" type="number" value={beds} onChange={(e) => setBeds(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Baths</label>
-              <input type="number" value={baths} onChange={(e) => setBaths(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+              <label htmlFor="baths" className="block text-sm font-medium text-gray-700">Baths</label>
+              <input id="baths" name="baths" type="number" value={baths} onChange={(e) => setBaths(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
             </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Square Feet</label>
-              <input type="number" value={sqft} onChange={(e) => setSqft(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+              <label htmlFor="sqft" className="block text-sm font-medium text-gray-700">Square Feet</label>
+              <input id="sqft" name="sqft" type="number" value={sqft} onChange={(e) => setSqft(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Rent ($)</label>
-              <input type="number" value={rent} onChange={(e) => setRent(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+              <label htmlFor="rent" className="block text-sm font-medium text-gray-700">Rent ($)</label>
+              <input id="rent" name="rent" type="number" value={rent} onChange={(e) => setRent(Number(e.target.value))} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
             </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Amenities</label>
-          <textarea value={amenities} onChange={(e) => setAmenities(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" rows={3}></textarea>
+          <label htmlFor="amenities" className="block text-sm font-medium text-gray-700">Amenities</label>
+          <textarea id="amenities" name="amenities" value={amenities} onChange={(e) => setAmenities(e.target.value)} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" rows={3}></textarea>
         </div>
         <div className="flex justify-end pt-4">
             <button type="button" onClick={onClose} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancel</button>
