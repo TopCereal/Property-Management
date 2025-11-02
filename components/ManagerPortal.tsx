@@ -224,6 +224,8 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
     }, [maintenanceRequests]);
     
     const handleAddProperty = (propData: Omit<Property, 'id' | 'tenantId'>) => {
+        // Debug log: see when handler fires and payload content
+        console.log('[UI] AddProperty clicked', propData);
         // Optimistic local add (for offline/local fallback)
         const newProperty: Property = { ...propData, id: `p${Date.now()}`, tenantId: null };
         setProperties(prev => [...prev, newProperty]);
@@ -234,6 +236,9 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
         });
         // Send to backend (backend accepts UI aliases like lotNumber/beds/...)
         createProperty.mutate(propData as any, {
+            onSuccess: (res: any) => {
+                console.log('[API] Create success', res?.status, res?.data);
+            },
             onError: (err: any) => {
                 console.error('Failed to create property:', err);
                 if (err?.response) {
@@ -263,7 +268,11 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
         const { lotNumber, beds, baths, sqft, rent, amenities } = updatedProperty;
         const numericId = Number(updatedProperty.id);
         if (Number.isFinite(numericId)) {
+            console.log('[UI] EditProperty calling API', { id: numericId, lotNumber, beds, baths, sqft, rent });
             updateProperty.mutate({ id: numericId, payload: { lotNumber, beds, baths, sqft, rent, amenities } as any }, {
+                onSuccess: (res: any) => {
+                    console.log('[API] Update success', res?.status, res?.data);
+                },
                 onError: (err: any) => {
                     console.error('Failed to update property:', err);
                     if (err?.response) {
@@ -279,6 +288,7 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
             });
         } else {
             // Local-only update for mock items
+            console.warn('[UI] EditProperty skipped API call because ID is not numeric', updatedProperty.id);
             setModal(null);
         }
     };
@@ -295,7 +305,11 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
             // Backend delete
             const numericId = Number(propertyId);
             if (Number.isFinite(numericId)) {
+                console.log('[UI] DeleteProperty calling API', { id: numericId });
                 deleteProperty.mutate(numericId, {
+                    onSuccess: (res: any) => {
+                        console.log('[API] Delete success', res?.status, res?.data);
+                    },
                     onError: (err: any) => {
                         console.error('Failed to delete property:', err);
                         if (err?.response) {
