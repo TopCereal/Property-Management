@@ -44,7 +44,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
     <div className={`bg-white rounded-lg shadow-lg overflow-hidden flex flex-col justify-between border-4 ${hasMaintenance ? 'border-yellow-400' : status.borderColor}`}>
       <div className="p-5">
         <div className="flex justify-between items-start">
-          <h3 className="text-xl font-bold text-gray-900">Lot #{property.lotNumber}</h3>
+          <h3 className="text-xl font-bold text-gray-900">{property.lotNumber}</h3>
           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${status.color}`}>
             {status.text}
           </span>
