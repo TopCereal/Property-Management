@@ -30,7 +30,7 @@ export function useProperties() {
 export function useCreateProperty() {
   const qc = useQueryClient();
   // Allow both backend and UI field names; backend accepts aliases
-  return useMutation((payload: Partial<components['schemas']['PropertyCreate']> & Record<string, unknown>) => api.post('/properties/', payload), {
+  return useMutation((payload: Record<string, any>) => api.post('/properties/', payload), {
     onSuccess: () => qc.invalidateQueries(['properties']),
   });
 }
@@ -38,7 +38,7 @@ export function useCreateProperty() {
 export function useUpdateProperty() {
   const qc = useQueryClient();
   return useMutation(
-    (args: { id: string | number; payload: Partial<components['schemas']['PropertyUpdate']> & Record<string, unknown> }) =>
+    (args: { id: string | number; payload: Record<string, any> }) =>
       api.put(`/properties/${Number(args.id)}`, args.payload),
     {
       onSuccess: () => qc.invalidateQueries(['properties']),

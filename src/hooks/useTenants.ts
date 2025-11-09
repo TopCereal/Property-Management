@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import type { components } from '../types/api';
 
@@ -31,5 +31,41 @@ export function useTenants() {
     const data = res.data;
     const list = Array.isArray(data) ? data : (data?.tenants ?? []);
     return list.map(mapApiTenant);
+  });
+}
+
+export function useCreateTenant() {
+  const qc = useQueryClient();
+  return useMutation((payload: Record<string, any>) => api.post('/tenants/', payload), {
+    onSuccess: () => qc.invalidateQueries(['tenants']),
+  });
+}
+
+export function useUpdateTenant() {
+  const qc = useQueryClient();
+  return useMutation(
+    (args: { id: string | number; payload: Record<string, any> }) =>
+      api.put(`/tenants/${Number(args.id)}`, args.payload),
+    {
+      onSuccess: () => qc.invalidateQueries(['tenants']),
+    }
+  );
+}
+
+export function usePatchTenant() {
+  const qc = useQueryClient();
+  return useMutation(
+    (args: { id: string | number; payload: Record<string, any> }) =>
+      api.patch(`/tenants/${Number(args.id)}`, args.payload),
+    {
+      onSuccess: () => qc.invalidateQueries(['tenants']),
+    }
+  );
+}
+
+export function useDeleteTenant() {
+  const qc = useQueryClient();
+  return useMutation((id: string | number) => api.delete(`/tenants/${Number(id)}`), {
+    onSuccess: () => qc.invalidateQueries(['tenants']),
   });
 }

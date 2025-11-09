@@ -33,6 +33,7 @@ import UploadPropertyFileModal from './modals/UploadPropertyFileModal';
 import LateFeeSettingsModal from './modals/LateFeeSettingsModal';
 // Hooks to integrate with backend APIs
 import { useCreateProperty, useUpdateProperty, useDeleteProperty } from '../src/hooks/useProperties';
+import { useCreateTenant, useUpdateTenant, usePatchTenant, useDeleteTenant } from '../src/hooks/useTenants';
 
 type Page = 'properties' | 'tenants' | 'maintenance' | 'billing' | 'map';
 
@@ -98,6 +99,12 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
     const updateProperty = useUpdateProperty();
     const deleteProperty = useDeleteProperty();
     const queryClient = useQueryClient();
+
+    // Backend tenant mutations
+    const createTenant = useCreateTenant();
+    const updateTenant = useUpdateTenant();
+    const patchTenant = usePatchTenant();
+    const deleteTenant = useDeleteTenant();
 
     useEffect(() => {
         const today = new Date();
@@ -328,31 +335,138 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
     
     const handleAddTenant = (tenantData: Omit<Tenant, 'id' | 'propertyId' | 'status'>) => {
         if (!modal || modal.name !== 'addTenant') return;
+        console.log('[UI] AddTenant clicked', tenantData);
+        
+        // Optimistic local add
         const newTenant: Tenant = { ...tenantData, id: `t${Date.now()}`, propertyId: modal.property.id, status: 'Active' };
         setTenants(prev => [...prev, newTenant]);
         setProperties(prev => prev.map(p => p.id === modal.property.id ? { ...p, tenantId: newTenant.id } : p));
-        setModal(null);
+        queryClient.setQueryData<Tenant[] | undefined>(['tenants'], prev => (prev ? [...prev, newTenant] : [newTenant]));
+        
+        // Prepare payload: split name into first_name/last_name, add status
+        const nameParts = tenantData.name.split(' ');
+        const first_name = nameParts[0] || '';
+        const last_name = nameParts.slice(1).join(' ') || '';
+        const payload = {
+            first_name,
+            last_name,
+            email: tenantData.email,
+            phone: tenantData.phone,
+            status: 'Active',
+        };
+        
+        createTenant.mutate(payload, {
+            onSuccess: (res: any) => {
+                console.log('[API] CreateTenant success', res?.status, res?.data);
+            },
+            onError: (err: any) => {
+                console.error('Failed to create tenant:', err);
+                alert(err?.response ? `Create failed: ${err.response.status} ${err.response.statusText}` : `Create failed: ${String(err?.message || err)}`);
+            },
+            onSettled: () => {
+                setModal(null);
+                queryClient.invalidateQueries({ queryKey: ['tenants'] });
+            },
+        });
     };
     
     const handleEditTenant = (updatedTenant: Tenant) => {
+        console.log('[UI] EditTenant clicked', updatedTenant);
+        
+        // Optimistic local update
         setTenants(prev => prev.map(t => t.id === updatedTenant.id ? updatedTenant : t));
-        setModal(null);
+        queryClient.setQueryData<Tenant[] | undefined>(['tenants'], prev => (prev ? prev.map(t => t.id === updatedTenant.id ? updatedTenant : t) : prev));
+        
+        // Prepare payload
+        const nameParts = updatedTenant.name.split(' ');
+        const first_name = nameParts[0] || '';
+        const last_name = nameParts.slice(1).join(' ') || '';
+        const payload = {
+            first_name,
+            last_name,
+            email: updatedTenant.email,
+            phone: updatedTenant.phone,
+            status: updatedTenant.status,
+        };
+        
+        const numericId = Number(updatedTenant.id);
+        if (Number.isFinite(numericId)) {
+            console.log('[UI] EditTenant calling API', { id: numericId, payload });
+            updateTenant.mutate({ id: numericId, payload }, {
+                onSuccess: (res: any) => console.log('[API] UpdateTenant success', res?.status, res?.data),
+                onError: (err: any) => {
+                    console.error('Failed to update tenant:', err);
+                    alert(err?.response ? `Update failed: ${err.response.status} ${err.response.statusText}` : `Update failed: ${String(err?.message || err)}`);
+                },
+                onSettled: () => {
+                    setModal(null);
+                    queryClient.invalidateQueries({ queryKey: ['tenants'] });
+                },
+            });
+        } else {
+            console.warn('[UI] EditTenant skipped API call because ID is not numeric', updatedTenant.id);
+            setModal(null);
+        }
     };
 
     const handleRemoveTenant = (propertyId: string) => {
-        if(window.confirm('Are you sure you want to remove this tenant? This will mark the property as vacant.')) {
-            const property = properties.find(p => p.id === propertyId);
-            if(property && property.tenantId) {
-                setTenants(prev => prev.map(t => t.id === property.tenantId ? { ...t, status: 'Disabled', propertyId: null } : t));
-                setProperties(prev => prev.map(p => p.id === propertyId ? { ...p, tenantId: null } : p));
+        if(!window.confirm('Are you sure you want to remove this tenant? This will mark the property as vacant.')) return;
+        
+        const property = properties.find(p => p.id === propertyId);
+        if(property && property.tenantId) {
+            console.log('[UI] RemoveTenant clicked', { propertyId, tenantId: property.tenantId });
+            
+            // Optimistic local update
+            setTenants(prev => prev.map(t => t.id === property.tenantId ? { ...t, status: 'Disabled', propertyId: null } : t));
+            setProperties(prev => prev.map(p => p.id === propertyId ? { ...p, tenantId: null } : p));
+            queryClient.setQueryData<Tenant[] | undefined>(['tenants'], prev => prev ? prev.map(t => t.id === property.tenantId ? { ...t, status: 'Disabled' as const, propertyId: null } : t) : prev);
+            
+            // PATCH tenant to set status=Disabled
+            const numericId = Number(property.tenantId);
+            if (Number.isFinite(numericId)) {
+                patchTenant.mutate({ id: numericId, payload: { status: 'Disabled' } }, {
+                    onSuccess: (res: any) => console.log('[API] PatchTenant (remove) success', res?.status, res?.data),
+                    onError: (err: any) => {
+                        console.error('Failed to disable tenant:', err);
+                        alert(err?.response ? `Disable failed: ${err.response.status} ${err.response.statusText}` : `Disable failed: ${String(err?.message || err)}`);
+                    },
+                    onSettled: () => queryClient.invalidateQueries({ queryKey: ['tenants'] }),
+                });
             }
         }
     };
     
     const handleAddApplicant = (applicantData: Omit<Tenant, 'id' | 'propertyId' | 'status'>) => {
+        console.log('[UI] AddApplicant clicked', applicantData);
+        
+        // Optimistic local add
         const newApplicant: Tenant = { ...applicantData, id: `t${Date.now()}`, propertyId: null, status: 'Applicant' };
         setTenants(prev => [...prev, newApplicant]);
-        setModal(null);
+        queryClient.setQueryData<Tenant[] | undefined>(['tenants'], prev => (prev ? [...prev, newApplicant] : [newApplicant]));
+        
+        // Prepare payload
+        const nameParts = applicantData.name.split(' ');
+        const first_name = nameParts[0] || '';
+        const last_name = nameParts.slice(1).join(' ') || '';
+        const payload = {
+            first_name,
+            last_name,
+            email: applicantData.email,
+            phone: applicantData.phone,
+            status: 'Applicant',
+        };
+        
+        createTenant.mutate(payload, {
+            onSuccess: (res: any) => console.log('[API] CreateTenant (applicant) success', res?.status, res?.data),
+            onError: (err: any) => {
+                console.error('Failed to create applicant:', err);
+                alert(err?.response ? `Create failed: ${err.response.status} ${err.response.statusText}` : `Create failed: ${String(err?.message || err)}`);
+            },
+            onSettled: () => {
+                setModal(null);
+                queryClient.invalidateQueries({ queryKey: ['tenants'] });
+            },
+        });
     };
 
     const handleApproveApplicant = (applicant: Tenant) => {
@@ -371,17 +485,51 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
     };
 
     const handleDeclineApplicant = (applicant: Tenant) => {
-        if(window.confirm(`Are you sure you want to decline ${applicant.name}?`)) {
-            setTenants(prev => prev.map(t => t.id === applicant.id ? { ...t, status: 'Declined' } : t));
+        if(!window.confirm(`Are you sure you want to decline ${applicant.name}?`)) return;
+        
+        console.log('[UI] DeclineApplicant clicked', applicant);
+        
+        // Optimistic local update
+        setTenants(prev => prev.map(t => t.id === applicant.id ? { ...t, status: 'Declined' as const } : t));
+        queryClient.setQueryData<Tenant[] | undefined>(['tenants'], prev => prev ? prev.map(t => t.id === applicant.id ? { ...t, status: 'Declined' as const } : t) : prev);
+        
+        // PATCH tenant status
+        const numericId = Number(applicant.id);
+        if (Number.isFinite(numericId)) {
+            patchTenant.mutate({ id: numericId, payload: { status: 'Declined' } }, {
+                onSuccess: (res: any) => console.log('[API] PatchTenant (decline) success', res?.status, res?.data),
+                onError: (err: any) => {
+                    console.error('Failed to decline applicant:', err);
+                    alert(err?.response ? `Decline failed: ${err.response.status} ${err.response.statusText}` : `Decline failed: ${String(err?.message || err)}`);
+                },
+                onSettled: () => queryClient.invalidateQueries({ queryKey: ['tenants'] }),
+            });
         }
     };
 
     const handleDisableTenant = (tenant: Tenant) => {
-        if(window.confirm(`Are you sure you want to disable ${tenant.name}? This will remove them from their property.`)) {
-             setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, status: 'Disabled', propertyId: null } : t));
-             if(tenant.propertyId) {
-                setProperties(prev => prev.map(p => p.id === tenant.propertyId ? { ...p, tenantId: null } : p));
-             }
+        if(!window.confirm(`Are you sure you want to disable ${tenant.name}? This will remove them from their property.`)) return;
+        
+        console.log('[UI] DisableTenant clicked', tenant);
+        
+        // Optimistic local update
+        setTenants(prev => prev.map(t => t.id === tenant.id ? { ...t, status: 'Disabled' as const, propertyId: null } : t));
+        if(tenant.propertyId) {
+            setProperties(prev => prev.map(p => p.id === tenant.propertyId ? { ...p, tenantId: null } : p));
+        }
+        queryClient.setQueryData<Tenant[] | undefined>(['tenants'], prev => prev ? prev.map(t => t.id === tenant.id ? { ...t, status: 'Disabled' as const, propertyId: null } : t) : prev);
+        
+        // PATCH tenant status
+        const numericId = Number(tenant.id);
+        if (Number.isFinite(numericId)) {
+            patchTenant.mutate({ id: numericId, payload: { status: 'Disabled' } }, {
+                onSuccess: (res: any) => console.log('[API] PatchTenant (disable) success', res?.status, res?.data),
+                onError: (err: any) => {
+                    console.error('Failed to disable tenant:', err);
+                    alert(err?.response ? `Disable failed: ${err.response.status} ${err.response.statusText}` : `Disable failed: ${String(err?.message || err)}`);
+                },
+                onSettled: () => queryClient.invalidateQueries({ queryKey: ['tenants'] }),
+            });
         }
     };
 
