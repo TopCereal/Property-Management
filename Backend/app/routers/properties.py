@@ -72,6 +72,8 @@ def create_property(
         "area": db_obj.area,
         "rent_amount": str(db_obj.rent_amount) if db_obj.rent_amount is not None else None,
         "status": db_obj.status,
+        "amenities": getattr(db_obj, 'amenities', None),
+        "notes": getattr(db_obj, 'notes', None),
         "created_at": db_obj.created_at.isoformat() if db_obj.created_at else None,
     }
 
@@ -127,6 +129,8 @@ def list_properties(
                 "area": p.area,
                 "rent_amount": str(p.rent_amount) if p.rent_amount is not None else None,
                 "status": p.status,
+                "amenities": getattr(p, 'amenities', None),
+                "notes": getattr(p, 'notes', None),
                 "created_at": p.created_at.isoformat() if p.created_at else None,
             })
         return {
@@ -185,6 +189,8 @@ def get_property(
             "area": prop.area,
             "rent_amount": str(prop.rent_amount) if prop.rent_amount is not None else None,
             "status": prop.status,
+            "amenities": getattr(prop, 'amenities', None),
+            "notes": getattr(prop, 'notes', None),
             "created_at": prop.created_at.isoformat() if prop.created_at else None,
         }
         return result
@@ -225,6 +231,8 @@ def update_property(property_id: int, payload: PropertyUpdate, db: Session = Dep
         "area": db_property.area,
         "rent_amount": str(db_property.rent_amount) if db_property.rent_amount is not None else None,
         "status": db_property.status,
+        "amenities": getattr(db_property, 'amenities', None),
+        "notes": getattr(db_property, 'notes', None),
         "created_at": db_property.created_at.isoformat() if db_property.created_at else None,
     }
 
@@ -255,6 +263,8 @@ def patch_property(property_id: int, payload: PropertyPatch, db: Session = Depen
         "area": db_property.area,
         "rent_amount": str(db_property.rent_amount) if db_property.rent_amount is not None else None,
         "status": db_property.status,
+        "amenities": getattr(db_property, 'amenities', None),
+        "notes": getattr(db_property, 'notes', None),
         "created_at": db_property.created_at.isoformat() if db_property.created_at else None,
     }
 

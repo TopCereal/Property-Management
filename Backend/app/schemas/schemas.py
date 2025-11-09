@@ -14,6 +14,7 @@ class PropertyBase(BaseModel):
     rent_amount: Optional[Decimal] = Field(default=None, validation_alias=AliasChoices("rent_amount", "rent"))
     status: Optional[str] = None
     amenities: Optional[str] = None
+    notes: Optional[str] = None
 
     model_config = ConfigDict(extra='ignore', populate_by_name=True)
 
@@ -34,6 +35,7 @@ class PropertyPatch(BaseModel):
     rent_amount: Optional[Decimal] = None
     status: Optional[str] = None
     amenities: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class PropertyRead(PropertyBase):

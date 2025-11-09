@@ -69,3 +69,17 @@ export function useDeleteTenant() {
     onSuccess: () => qc.invalidateQueries(['tenants']),
   });
 }
+
+export function useAssignTenant() {
+  const qc = useQueryClient();
+  return useMutation(
+    (args: { tenantId: string | number; propertyId: string | number }) =>
+      api.post(`/tenants/${Number(args.tenantId)}/assign/${Number(args.propertyId)}`),
+    {
+      onSuccess: () => {
+        qc.invalidateQueries(['tenants']);
+        qc.invalidateQueries(['properties']);
+      },
+    }
+  );
+}

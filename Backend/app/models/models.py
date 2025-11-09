@@ -14,6 +14,7 @@ class Property(Base):
     rent_amount = Column(Numeric(10, 2))
     status = Column(String(50))
     amenities = Column(Text, nullable=True)
+    notes = Column(Text, nullable=True)  # Added notes column
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships

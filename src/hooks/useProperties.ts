@@ -13,7 +13,8 @@ function mapApiProperty(p: ApiProperty) {
     baths: (p.bathrooms ?? 0) as number,
     sqft: (p.area ?? 0) as number,
     rent: typeof p.rent_amount === 'number' ? p.rent_amount : Number(p.rent_amount ?? 0),
-    amenities: '',
+    amenities: (p as any).amenities ?? '',
+    notes: (p as any).notes ?? '',
     tenantId: null as string | null,
   };
 }

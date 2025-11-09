@@ -23,6 +23,7 @@ export interface Property {
   sqft: number;
   rent: number;
   amenities: string;
+  notes?: string;
   tenantId: string | null;
 }
 

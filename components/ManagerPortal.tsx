@@ -33,7 +33,7 @@ import UploadPropertyFileModal from './modals/UploadPropertyFileModal';
 import LateFeeSettingsModal from './modals/LateFeeSettingsModal';
 // Hooks to integrate with backend APIs
 import { useCreateProperty, useUpdateProperty, useDeleteProperty } from '../src/hooks/useProperties';
-import { useCreateTenant, useUpdateTenant, usePatchTenant, useDeleteTenant } from '../src/hooks/useTenants';
+import { useCreateTenant, useUpdateTenant, usePatchTenant, useDeleteTenant, useAssignTenant } from '../src/hooks/useTenants';
 
 type Page = 'properties' | 'tenants' | 'maintenance' | 'billing' | 'map';
 
@@ -105,6 +105,7 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
     const updateTenant = useUpdateTenant();
     const patchTenant = usePatchTenant();
     const deleteTenant = useDeleteTenant();
+    const assignTenant = useAssignTenant();
 
     useEffect(() => {
         const today = new Date();
@@ -479,9 +480,31 @@ const ManagerPortal: React.FC<ManagerPortalProps> = ({ allData, setters, onLogou
     };
 
     const handleAssignTenant = (tenantId: string, propertyId: string) => {
-        setTenants(prev => prev.map(t => t.id === tenantId ? { ...t, status: 'Active', propertyId: propertyId } : t));
-        setProperties(prev => prev.map(p => p.id === propertyId ? { ...p, tenantId: tenantId } : p));
-        setModal(null);
+        console.log('[UI] AssignTenant clicked', { tenantId, propertyId });
+        // Optimistic local updates
+        setTenants(prev => prev.map(t => t.id === tenantId ? { ...t, status: 'Active', propertyId } : t));
+        setProperties(prev => prev.map(p => p.id === propertyId ? { ...p, tenantId } : p));
+        queryClient.setQueryData<Tenant[] | undefined>(['tenants'], prev => prev ? prev.map(t => t.id === tenantId ? { ...t, status: 'Active', propertyId } : t) : prev);
+        queryClient.setQueryData<Property[] | undefined>(['properties'], prev => prev ? prev.map(p => p.id === propertyId ? { ...p, tenantId } : p) : prev);
+        const numericTenantId = Number(tenantId);
+        const numericPropertyId = Number(propertyId);
+        if (Number.isFinite(numericTenantId) && Number.isFinite(numericPropertyId)) {
+            assignTenant.mutate({ tenantId: numericTenantId, propertyId: numericPropertyId }, {
+                onSuccess: (res: any) => console.log('[API] AssignTenant success', res?.status, res?.data),
+                onError: (err: any) => {
+                    console.error('Failed to assign tenant:', err);
+                    alert(err?.response ? `Assign failed: ${err.response.status} ${err.response.statusText}` : `Assign failed: ${String(err?.message || err)}`);
+                },
+                onSettled: () => {
+                    setModal(null);
+                    queryClient.invalidateQueries({ queryKey: ['tenants'] });
+                    queryClient.invalidateQueries({ queryKey: ['properties'] });
+                }
+            });
+        } else {
+            console.warn('[UI] AssignTenant skipped API call due to non-numeric IDs', { tenantId, propertyId });
+            setModal(null);
+        }
     };
 
     const handleDeclineApplicant = (applicant: Tenant) => {

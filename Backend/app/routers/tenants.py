@@ -5,7 +5,7 @@ from datetime import datetime
 import logging
 
 from ..database import get_db
-from ..models.models import Tenant as TenantModel
+from ..models.models import Tenant as TenantModel, Property as PropertyModel, Lease as LeaseModel
 from ..schemas.schemas import TenantCreate, TenantRead, TenantPatch
 from ..schemas.responses import APIError
 
@@ -257,3 +257,54 @@ def delete_tenant(tenant_id: int, db: Session = Depends(get_db)):
     db.delete(db_tenant)
     db.commit()
     return {"message": f"Tenant {tenant_id} deleted successfully"}
+
+
+@router.post("/{tenant_id}/assign/{property_id}", summary="Approve applicant and assign to property")
+def approve_and_assign_tenant(
+    tenant_id: int,
+    property_id: int,
+    db: Session = Depends(get_db)
+):
+    """Approve an applicant tenant, create an active lease, and mark property rented.
+    Returns updated tenant data including property assignment."""
+    tenant = db.query(TenantModel).filter(TenantModel.id == tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    prop = db.query(PropertyModel).filter(PropertyModel.id == property_id).first()
+    if not prop:
+        raise HTTPException(status_code=404, detail="Property not found")
+
+    # Basic checks (property availability)
+    if prop.status and prop.status.lower() in ["rented", "occupied"]:
+        raise HTTPException(status_code=400, detail="Property already rented")
+
+    # Update tenant status to active
+    tenant.status = "active"
+    # Update property status to rented
+    prop.status = "rented"
+
+    # Create lease record
+    lease = LeaseModel(
+        property_id=prop.id,
+        tenant_id=tenant.id,
+        start_date=datetime.utcnow().date(),
+        end_date=None,
+        rent_amount=prop.rent_amount,
+        status="active"
+    )
+    db.add(lease)
+    db.commit()
+    db.refresh(tenant)
+    db.refresh(prop)
+    db.refresh(lease)
+
+    return {
+        "id": tenant.id,
+        "first_name": tenant.first_name,
+        "last_name": tenant.last_name,
+        "email": tenant.email,
+        "phone": tenant.phone,
+        "status": tenant.status,
+        "property_id": prop.id,
+        "created_at": tenant.created_at.isoformat() if tenant.created_at else None,
+    }
