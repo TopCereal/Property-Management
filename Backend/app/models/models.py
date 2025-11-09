@@ -13,6 +13,7 @@ class Property(Base):
     area = Column(Float)
     rent_amount = Column(Numeric(10, 2))
     status = Column(String(50))
+    amenities = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships

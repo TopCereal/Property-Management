@@ -13,8 +13,8 @@ class PropertyBase(BaseModel):
     area: Optional[float] = Field(default=None, validation_alias=AliasChoices("area", "sqft"))
     rent_amount: Optional[Decimal] = Field(default=None, validation_alias=AliasChoices("rent_amount", "rent"))
     status: Optional[str] = None
+    amenities: Optional[str] = None
 
-    # Ignore unknown fields (e.g., amenities, tenantId) coming from UI payloads
     model_config = ConfigDict(extra='ignore', populate_by_name=True)
 
 
@@ -33,6 +33,7 @@ class PropertyPatch(BaseModel):
     area: Optional[float] = None
     rent_amount: Optional[Decimal] = None
     status: Optional[str] = None
+    amenities: Optional[str] = None
 
 
 class PropertyRead(PropertyBase):
